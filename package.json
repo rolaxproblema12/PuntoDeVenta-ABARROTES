@@ -1,0 +1,32 @@
+{
+  "name": "abarrotes-pos",
+  "version": "0.1.0",
+  "private": true,
+  "description": "POS Inteligente para tiendas de abarrotes y conveniencia (hybrid Supabase + NestJS)",
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "build": "pnpm -r --filter ./packages/* build && pnpm -r --filter ./apps/* build",
+    "dev": "concurrently -n api,web -c blue,green \"pnpm dev:api\" \"pnpm dev:web\"",
+    "dev:api": "pnpm --filter @abarrotes/api start:dev",
+    "dev:web": "pnpm --filter @abarrotes/web dev",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "db:migrate": "supabase migration up",
+    "db:seed": "supabase db reset",
+    "clean": "pnpm -r exec rimraf dist node_modules .turbo && rimraf node_modules"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "prettier": "^3.3.3",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.6.3"
+  }
+}
