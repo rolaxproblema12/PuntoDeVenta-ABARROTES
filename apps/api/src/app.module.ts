@@ -1,0 +1,48 @@
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { SupabaseModule } from './common/supabase/supabase.module';
+import { SupabaseJwtGuard } from './common/guards/supabase-jwt.guard';
+import { RolesGuard } from './common/guards/roles.guard';
+import { PinGuard } from './common/guards/pin.guard';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import { createSkeletonModule } from './common/skeleton.module';
+import { HealthModule } from './modules/health/health.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { SalesModule } from './modules/sales/sales.module';
+import { CashModule } from './modules/cash/cash.module';
+import { SyncModule } from './modules/sync/sync.module';
+
+/** Módulos esqueleto (Fase 0): funcionales por fase posterior. */
+const skeletons = [
+  createSkeletonModule('products', 'products'),
+  createSkeletonModule('inventory', 'inventory_movements'),
+  createSkeletonModule('pricing', 'price_lists'),
+  createSkeletonModule('transfers', 'transfers'),
+  createSkeletonModule('customers', 'customers'),
+  createSkeletonModule('credit', 'customer_credit_movements'),
+  createSkeletonModule('purchasing', 'purchase_orders'),
+  createSkeletonModule('reports', null),
+  createSkeletonModule('settings', 'settings'),
+  createSkeletonModule('smart', 'ai_signals'),
+];
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: ['.env.local', '.env'] }),
+    SupabaseModule,
+    HealthModule,
+    AuthModule,
+    SalesModule,
+    CashModule,
+    SyncModule,
+    ...skeletons,
+  ],
+  providers: [
+    { provide: APP_GUARD, useClass: SupabaseJwtGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
+    { provide: APP_GUARD, useClass: PinGuard },
+    { provide: APP_FILTER, useClass: AllExceptionsFilter },
+  ],
+})
+export class AppModule {}
