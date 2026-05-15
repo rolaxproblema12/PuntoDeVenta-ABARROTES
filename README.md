@@ -42,6 +42,18 @@ pnpm dev                          # API :3000/api/v1 (Swagger /docs) + Web :5173
 | `pnpm test`       | Vitest (web + api)                        |
 | `pnpm db:reset`   | Reaplica migraciones + seed desde cero    |
 
+## Verificación Fase 0 (hecha)
+
+`pnpm install` · `shared` build+tests ✓ · `api` typecheck+build+tests ✓ y
+arranca (`/health` 200, `/auth/me` 401 sin token, Swagger `/api/v1/docs` 200) ·
+`web` typecheck+build (PWA + chunks) + tests ✓ · `pnpm lint` ✓.
+
+> **Pendiente de entorno:** el smoke e2e contra la BD (crear una venta real)
+> requiere **Docker Desktop + Supabase CLI**, que no están instalados en esta
+> máquina. Instálalos (`scoop install supabase`) y corre
+> `pnpm db:start && pnpm db:seed && pnpm dev`. Las 13 migraciones y el seed ya
+> están escritos e idempotentes.
+
 ## Estado (roadmap por fases)
 
 - **Fase 0 — Scaffold (este commit):** monorepo, 13 migraciones, API con 14 módulos

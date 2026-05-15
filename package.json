@@ -14,7 +14,7 @@
     "dev:api": "pnpm --filter @abarrotes/api start:dev",
     "dev:web": "pnpm --filter @abarrotes/web dev",
     "typecheck": "pnpm -r typecheck",
-    "lint": "pnpm -r lint",
+    "lint": "eslint .",
     "test": "pnpm -r test",
     "db:start": "supabase start",
     "db:stop": "supabase stop",
@@ -24,9 +24,12 @@
     "clean": "pnpm -r exec rimraf dist node_modules .turbo && rimraf node_modules"
   },
   "devDependencies": {
+    "@eslint/js": "^9.13.0",
     "concurrently": "^9.1.0",
+    "eslint": "^9.13.0",
     "prettier": "^3.3.3",
     "rimraf": "^6.0.1",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.10.0"
   }
 }

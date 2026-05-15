@@ -39,6 +39,20 @@ export default defineConfig({
       ),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          supabase: ['@supabase/supabase-js'],
+          tanstack: [
+            '@tanstack/react-query',
+            '@tanstack/react-query-persist-client',
+          ],
+        },
+      },
+    },
+  },
   server: { port: 5173 },
   test: {
     environment: 'happy-dom',
