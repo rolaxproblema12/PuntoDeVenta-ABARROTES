@@ -1,9 +1,18 @@
-# ABARROTES POS — Punto de Venta Inteligente
+# ABARROTES POS — SaaS de Punto de Venta
 
-POS profesional y escalable para tiendas de **abarrotes y conveniencia**: multiusuario,
-multisucursal, tiempo real y sincronización en la nube. Arquitectura **híbrida**:
-Supabase (Postgres + Auth + Realtime) + capa API REST delgada en **NestJS** para
-integridad transaccional y futuras apps móviles.
+**Producto SaaS multi-tenant**: cualquiera entra a la web, se registra, paga una
+suscripción y obtiene **su propio sistema POS aislado**. Mismo código y
+estructura para todos; datos separados por `tenant_id` + RLS. El dueño de la
+plataforma (super-admin) administra todos los negocios.
+
+POS para tiendas de **abarrotes y conveniencia**: multiusuario, multisucursal,
+tiempo real, offline y nube. Arquitectura **híbrida**: Supabase
+(Postgres + Auth + Realtime) + capa API REST en **NestJS** (integridad
+transaccional, Stripe) + web PWA.
+
+> **Para producción NO se necesita Docker.** Docker solo sirve para correr
+> Supabase localmente (opcional). Guía completa sin Docker, con acceso por URL
+> desde el celular: **[docs/deployment.md](docs/deployment.md)**.
 
 ## Monorepo
 
@@ -18,17 +27,26 @@ docs/              architecture / db-schema / api-contract / offline-sync
 ## Requisitos
 
 - Node 20+ y pnpm 9+ (`npm i -g pnpm@9`)
-- Docker Desktop + [Supabase CLI](https://supabase.com/docs/guides/cli) (`scoop install supabase`)
+- Una cuenta gratis en [Supabase](https://supabase.com) y [Stripe](https://stripe.com)
+- *(Opcional, solo dev local)* Docker + Supabase CLI
 
-## Arranque local
+## Puesta en marcha (nube, recomendado — sin Docker)
 
 ```bash
 pnpm install
-cp .env.example .env.local        # rellena con los valores de `pnpm db:start`
-pnpm db:start                     # supabase start (Postgres + Auth + Realtime)
-pnpm db:migrate                   # aplica supabase/migrations en orden
-pnpm db:seed                      # carga datos de ejemplo (seed.sql)
+cp .env.example .env.local        # rellena con datos de tu proyecto Supabase + Stripe
+pnpm db:bundle                    # genera supabase/all-in-one.sql
+# → pega ese SQL en Supabase Studio → SQL Editor → Run
 pnpm dev                          # API :3000/api/v1 (Swagger /docs) + Web :5173
+```
+
+Guía paso a paso (crear proyecto Supabase, Stripe, desplegar en Vercel/Render,
+designar super-admin, verificación): **[docs/deployment.md](docs/deployment.md)**.
+
+### Alternativa: Supabase local (requiere Docker)
+
+```bash
+pnpm db:start && pnpm db:seed && pnpm dev
 ```
 
 ## Scripts

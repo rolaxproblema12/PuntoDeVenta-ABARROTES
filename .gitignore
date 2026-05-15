@@ -15,6 +15,7 @@ build/
 # supabase
 supabase/.branches/
 supabase/.temp/
+supabase/all-in-one.sql
 
 # logs
 *.log
