@@ -13,7 +13,8 @@ async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter(),
-    { logger: ['error', 'warn', 'log'] },
+    // rawBody: necesario para verificar la firma del webhook de Stripe.
+    { logger: ['error', 'warn', 'log'], rawBody: true },
   );
 
   app.setGlobalPrefix(ENV.apiPrefix);

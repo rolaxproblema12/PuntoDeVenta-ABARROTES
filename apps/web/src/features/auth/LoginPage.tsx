@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 
 export default function LoginPage() {
@@ -51,6 +51,12 @@ export default function LoginPage() {
         >
           {busy ? 'Entrando…' : 'Entrar'}
         </button>
+        <p className="text-center text-sm text-slate-400">
+          ¿No tienes sistema?{' '}
+          <Link to="/registro" className="text-brand">
+            Crea el tuyo gratis
+          </Link>
+        </p>
         <p className="text-xs text-slate-400">
           Demo: admin@pos.local / super@pos.local / encargado@pos.local /
           cajero@pos.local · password123

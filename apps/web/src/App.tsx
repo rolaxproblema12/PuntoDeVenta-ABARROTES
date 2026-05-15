@@ -17,6 +17,7 @@ import { AppShell } from '@/components/AppShell';
 import { ModulePage } from '@/features/_placeholder/ModulePage';
 
 const LoginPage = lazy(() => import('@/features/auth/LoginPage'));
+const SignupPage = lazy(() => import('@/features/marketing/SignupPage'));
 const BillingPage = lazy(() => import('@/features/billing/BillingPage'));
 const PlatformDashboard = lazy(
   () => import('@/features/platform/PlatformDashboard'),
@@ -174,6 +175,7 @@ export default function App() {
         >
           <Routes>
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/registro" element={<SignupPage />} />
             <Route
               path="/billing"
               element={

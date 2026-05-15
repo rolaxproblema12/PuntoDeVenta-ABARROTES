@@ -9,6 +9,10 @@ export interface AppEnv {
   supabaseServiceRoleKey: string;
   jwksUrl: string;
   jwtAud: string;
+  appPublicUrl: string;
+  stripeSecretKey: string;
+  stripeWebhookSecret: string;
+  stripePrices: Record<string, string>;
 }
 
 export function loadEnv(): AppEnv {
@@ -25,6 +29,14 @@ export function loadEnv(): AppEnv {
       env.SUPABASE_JWT_JWKS_URL ??
       'http://127.0.0.1:54321/auth/v1/.well-known/jwks.json',
     jwtAud: env.SUPABASE_JWT_AUD ?? 'authenticated',
+    appPublicUrl: env.APP_PUBLIC_URL ?? 'http://localhost:5173',
+    stripeSecretKey: env.STRIPE_SECRET_KEY ?? '',
+    stripeWebhookSecret: env.STRIPE_WEBHOOK_SECRET ?? '',
+    stripePrices: {
+      basico: env.STRIPE_PRICE_BASICO ?? '',
+      pro: env.STRIPE_PRICE_PRO ?? '',
+      negocio: env.STRIPE_PRICE_NEGOCIO ?? '',
+    },
   };
 }
 

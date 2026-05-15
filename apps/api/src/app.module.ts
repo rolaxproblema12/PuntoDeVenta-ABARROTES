@@ -2,6 +2,9 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { SupabaseModule } from './common/supabase/supabase.module';
+import { StripeModule } from './common/stripe/stripe.module';
+import { OnboardingModule } from './modules/onboarding/onboarding.module';
+import { BillingModule } from './modules/billing/billing.module';
 import { SupabaseJwtGuard } from './common/guards/supabase-jwt.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { PinGuard } from './common/guards/pin.guard';
@@ -33,8 +36,11 @@ const skeletons = [
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: ['.env.local', '.env'] }),
     SupabaseModule,
+    StripeModule,
     HealthModule,
     AuthModule,
+    OnboardingModule,
+    BillingModule,
     SalesModule,
     CashModule,
     SyncModule,
