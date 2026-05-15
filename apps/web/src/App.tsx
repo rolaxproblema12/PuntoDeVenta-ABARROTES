@@ -6,7 +6,7 @@ import {
   Routes,
 } from 'react-router-dom';
 import type { UserRole } from '@abarrotes/shared';
-import { AuthProvider } from '@/features/auth/AuthProvider';
+import { AuthProvider, useAuth } from '@/features/auth/AuthProvider';
 import {
   AuthGate,
   BillingGate,
@@ -17,7 +17,17 @@ import { AppShell } from '@/components/AppShell';
 import { ModulePage } from '@/features/_placeholder/ModulePage';
 
 const LoginPage = lazy(() => import('@/features/auth/LoginPage'));
+const LandingPage = lazy(() => import('@/features/marketing/LandingPage'));
+const PricingPage = lazy(() => import('@/features/marketing/PricingPage'));
 const SignupPage = lazy(() => import('@/features/marketing/SignupPage'));
+
+/** Home pública: si ya hay sesión, entra al sistema. */
+function PublicHome() {
+  const { loading, session } = useAuth();
+  if (loading) return null;
+  if (session) return <Navigate to="/pos" replace />;
+  return <LandingPage />;
+}
 const BillingPage = lazy(() => import('@/features/billing/BillingPage'));
 const PlatformDashboard = lazy(
   () => import('@/features/platform/PlatformDashboard'),
@@ -174,6 +184,8 @@ export default function App() {
           }
         >
           <Routes>
+            <Route path="/" element={<PublicHome />} />
+            <Route path="/precios" element={<PricingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/registro" element={<SignupPage />} />
             <Route

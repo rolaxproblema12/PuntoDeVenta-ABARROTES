@@ -5,6 +5,7 @@ import { SupabaseModule } from './common/supabase/supabase.module';
 import { StripeModule } from './common/stripe/stripe.module';
 import { OnboardingModule } from './modules/onboarding/onboarding.module';
 import { BillingModule } from './modules/billing/billing.module';
+import { PlatformModule } from './modules/platform/platform.module';
 import { SupabaseJwtGuard } from './common/guards/supabase-jwt.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { PinGuard } from './common/guards/pin.guard';
@@ -41,6 +42,7 @@ const skeletons = [
     AuthModule,
     OnboardingModule,
     BillingModule,
+    PlatformModule,
     SalesModule,
     CashModule,
     SyncModule,
