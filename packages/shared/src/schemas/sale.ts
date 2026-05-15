@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { BASE_UNITS, PAYMENT_METHODS, SALE_ITEM_KINDS } from '../enums.js';
+import { BASE_UNITS, PAYMENT_METHODS, SALE_ITEM_KINDS } from '../enums';
 
 /** Línea de venta enviada a la API (montos en centavos enteros). */
 export const saleItemInputSchema = z.object({

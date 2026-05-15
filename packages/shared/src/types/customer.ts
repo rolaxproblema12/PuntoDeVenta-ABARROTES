@@ -1,5 +1,5 @@
-import type { CreditMovementKind } from '../enums.js';
-import type { AuditFields, UUID } from './common.js';
+import type { CreditMovementKind } from '../enums';
+import type { AuditFields, UUID } from './common';
 
 export interface Customer extends AuditFields {
   id: UUID;

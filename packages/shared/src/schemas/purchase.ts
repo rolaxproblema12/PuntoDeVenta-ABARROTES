@@ -1,4 +1,5 @@
 import { z } from 'zod';
+// (sin imports de enums; este módulo solo usa primitivas zod)
 
 export const upsertSupplierSchema = z.object({
   id: z.string().uuid().optional(),

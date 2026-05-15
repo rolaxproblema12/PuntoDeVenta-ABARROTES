@@ -1,5 +1,5 @@
-import type { BaseUnit, PriceListType, PromotionType } from '../enums.js';
-import type { AuditFields, UUID } from './common.js';
+import type { BaseUnit, PriceListType, PromotionType } from '../enums';
+import type { AuditFields, UUID } from './common';
 
 export interface Category {
   id: UUID;

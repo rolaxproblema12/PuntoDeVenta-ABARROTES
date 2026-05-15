@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { BASE_UNITS } from '../enums.js';
+import { BASE_UNITS } from '../enums';
 
 export const upsertProductSchema = z.object({
   id: z.string().uuid().optional(),

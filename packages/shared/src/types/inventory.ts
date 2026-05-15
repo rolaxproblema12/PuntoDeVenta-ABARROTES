@@ -1,5 +1,5 @@
-import type { MovementKind, TransferStatus } from '../enums.js';
-import type { AuditFields, UUID } from './common.js';
+import type { MovementKind, TransferStatus } from '../enums';
+import type { AuditFields, UUID } from './common';
 
 export interface Lot {
   id: UUID;

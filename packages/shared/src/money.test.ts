@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fromCents, lineTotalCents, pctOf, sumCents, toCents } from './money.js';
+import { fromCents, lineTotalCents, pctOf, sumCents, toCents } from './money';
 
 describe('money', () => {
   it('toCents/fromCents round-trips without float drift', () => {

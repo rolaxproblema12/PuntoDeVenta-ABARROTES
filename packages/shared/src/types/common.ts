@@ -1,4 +1,4 @@
-import type { UserRole } from '../enums.js';
+import type { UserRole } from '../enums';
 
 export type UUID = string;
 export type ISODateString = string;

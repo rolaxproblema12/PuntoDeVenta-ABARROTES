@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CREDIT_MOVEMENT_KINDS } from '../enums.js';
+import { CREDIT_MOVEMENT_KINDS } from '../enums';
 
 export const upsertCustomerSchema = z.object({
   id: z.string().uuid().optional(),

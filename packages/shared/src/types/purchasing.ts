@@ -1,5 +1,5 @@
-import type { PurchaseOrderStatus } from '../enums.js';
-import type { AuditFields, UUID } from './common.js';
+import type { PurchaseOrderStatus } from '../enums';
+import type { AuditFields, UUID } from './common';
 
 export interface Supplier {
   id: UUID;

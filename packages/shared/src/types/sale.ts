@@ -4,8 +4,8 @@ import type {
   PaymentMethod,
   SaleItemKind,
   SaleStatus,
-} from '../enums.js';
-import type { AuditFields, UUID } from './common.js';
+} from '../enums';
+import type { AuditFields, UUID } from './common';
 
 export interface Register {
   id: UUID;
