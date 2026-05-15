@@ -52,7 +52,7 @@ export class SupabaseJwtGuard implements CanActivate {
     const admin = this.supabase.admin();
     const { data: profile } = await admin
       .from('profiles')
-      .select('id, email, role, active')
+      .select('id, email, role, active, tenant_id')
       .eq('id', userId)
       .single();
 
@@ -65,14 +65,33 @@ export class SupabaseJwtGuard implements CanActivate {
       .select('sucursal_id')
       .eq('user_id', userId);
 
+    const { data: padmin } = await admin
+      .from('platform_admins')
+      .select('user_id')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    let tenantStatus: string | null = null;
+    if (profile.tenant_id) {
+      const { data: tenant } = await admin
+        .from('tenants')
+        .select('status')
+        .eq('id', profile.tenant_id)
+        .maybeSingle();
+      tenantStatus = tenant?.status ?? null;
+    }
+
     const user: AuthUser = {
       id: profile.id,
       email: profile.email,
       role: profile.role,
       active: profile.active,
       sucursalIds: (links ?? []).map((l) => l.sucursal_id),
+      tenantId: profile.tenant_id ?? null,
+      isPlatformAdmin: !!padmin,
     };
     req.user = user;
+    req.tenant = { id: profile.tenant_id ?? null, status: tenantStatus };
     req.accessToken = token;
     return true;
   }

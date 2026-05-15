@@ -7,11 +7,20 @@ import {
 } from 'react-router-dom';
 import type { UserRole } from '@abarrotes/shared';
 import { AuthProvider } from '@/features/auth/AuthProvider';
-import { AuthGate, RoleRoute } from '@/routes/guards';
+import {
+  AuthGate,
+  BillingGate,
+  PlatformAdminRoute,
+  RoleRoute,
+} from '@/routes/guards';
 import { AppShell } from '@/components/AppShell';
 import { ModulePage } from '@/features/_placeholder/ModulePage';
 
 const LoginPage = lazy(() => import('@/features/auth/LoginPage'));
+const BillingPage = lazy(() => import('@/features/billing/BillingPage'));
+const PlatformDashboard = lazy(
+  () => import('@/features/platform/PlatformDashboard'),
+);
 const PosPage = lazy(() => import('@/features/pos/PosPage'));
 const CashPage = lazy(() => import('@/features/cash/CashPage'));
 
@@ -166,11 +175,34 @@ export default function App() {
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route
-              path="/*"
+              path="/billing"
               element={
                 <AuthGate>
                   <AppShell>
-                    <Routes>
+                    <BillingPage />
+                  </AppShell>
+                </AuthGate>
+              }
+            />
+            <Route
+              path="/admin/platform"
+              element={
+                <AuthGate>
+                  <PlatformAdminRoute>
+                    <AppShell>
+                      <PlatformDashboard />
+                    </AppShell>
+                  </PlatformAdminRoute>
+                </AuthGate>
+              }
+            />
+            <Route
+              path="/*"
+              element={
+                <AuthGate>
+                  <BillingGate>
+                    <AppShell>
+                      <Routes>
                       <Route path="/" element={<Navigate to="/pos" replace />} />
                       <Route path="/pos" element={<PosPage />} />
                       <Route path="/cash" element={<CashPage />} />
@@ -190,8 +222,9 @@ export default function App() {
                         />
                       ))}
                       <Route path="*" element={<Navigate to="/pos" replace />} />
-                    </Routes>
-                  </AppShell>
+                      </Routes>
+                    </AppShell>
+                  </BillingGate>
                 </AuthGate>
               }
             />

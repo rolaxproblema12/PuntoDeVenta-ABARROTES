@@ -7,9 +7,11 @@ export * from './types/inventory';
 export * from './types/sale';
 export * from './types/customer';
 export * from './types/purchasing';
+export * from './types/tenant';
 
 export * from './schemas/sale';
 export * from './schemas/product';
 export * from './schemas/customer';
 export * from './schemas/cash';
 export * from './schemas/purchase';
+export * from './schemas/tenant';

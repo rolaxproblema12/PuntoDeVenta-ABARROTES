@@ -11,6 +11,7 @@ import {
   Sparkles,
   Store,
   Truck,
+  Wallet,
 } from 'lucide-react';
 import type { UserRole } from '@abarrotes/shared';
 
@@ -35,4 +36,5 @@ export const MENU: MenuItem[] = [
   { path: '/smart', label: 'Inteligencia', icon: Sparkles, minRole: 'supervisor' },
   { path: '/cloud', label: 'Nube / Sync', icon: Cloud, minRole: 'encargado' },
   { path: '/cash', label: 'Cortes de caja', icon: Banknote, minRole: 'cajero' },
+  { path: '/billing', label: 'Facturación', icon: Wallet, minRole: 'administrador' },
 ];

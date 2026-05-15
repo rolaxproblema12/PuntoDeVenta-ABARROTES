@@ -84,3 +84,38 @@ export const PIN_GATED_ACTIONS = [
   'credit.over_limit',
 ] as const;
 export type PinGatedAction = (typeof PIN_GATED_ACTIONS)[number];
+
+// ─── Capa SaaS multi-tenant ──────────────────────────────────────────────────
+
+/** Estado del tenant (cliente que paga). Controla el acceso a la app. */
+export const TENANT_STATUSES = [
+  'trial',
+  'active',
+  'past_due',
+  'suspended',
+  'canceled',
+] as const;
+export type TenantStatus = (typeof TENANT_STATUSES)[number];
+
+/** Estados en los que el POS funciona con normalidad. */
+export const TENANT_ACTIVE_STATUSES: readonly TenantStatus[] = [
+  'trial',
+  'active',
+  'past_due',
+];
+
+export const PLAN_CODES = ['basico', 'pro', 'negocio'] as const;
+export type PlanCode = (typeof PLAN_CODES)[number];
+
+/** Espejo de los estados de suscripción de Stripe que nos interesan. */
+export const SUBSCRIPTION_STATUSES = [
+  'trialing',
+  'active',
+  'past_due',
+  'canceled',
+  'unpaid',
+  'incomplete',
+] as const;
+export type SubscriptionStatus = (typeof SUBSCRIPTION_STATUSES)[number];
+
+export const DEFAULT_TRIAL_DAYS = 14;

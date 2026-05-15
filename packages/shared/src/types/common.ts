@@ -27,6 +27,7 @@ export interface Profile {
   role: UserRole;
   active: boolean;
   default_sucursal_id: UUID | null;
+  tenant_id: UUID | null;
 }
 
 /** Usuario autenticado tal como lo expone la API en `request.user`. */
@@ -36,6 +37,8 @@ export interface AuthUser {
   role: UserRole;
   active: boolean;
   sucursalIds: UUID[];
+  tenantId: UUID | null;
+  isPlatformAdmin: boolean;
 }
 
 export interface ApiError {

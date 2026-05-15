@@ -1,11 +1,65 @@
 -- seed.sql — datos de ejemplo para desarrollo (idempotente).
--- Usuarios demo: <rol>@pos.local / contraseña: password123
+-- Usuarios demo Tenant A: <rol>@pos.local / contraseña: password123
+-- Tenant B (aislamiento): adminb@pos.local / password123
+-- Plataforma (super-admin): owner@plataforma.local / password123
 
--- ── Sucursales ───────────────────────────────────────────────────────────────
-insert into sucursales (id, code, name, address) values
-  ('11111111-1111-1111-1111-111111111111','MX','Tienda Centro','Av. Juárez 100'),
-  ('22222222-2222-2222-2222-222222222222','GD','Tienda Norte','Blvd. Norte 250')
+-- ── Tenant A (demo principal) + Tenant B (prueba de aislamiento) ─────────────
+insert into tenants (id, name, slug, status, plan_code, owner_user_id) values
+  ('f0000001-0000-0000-0000-000000000001','Abarrotes Demo A','demo-a',
+   'active','negocio', null),
+  ('f0000002-0000-0000-0000-000000000002','Abarrotes Demo B','demo-b',
+   'active','basico', null)
 on conflict (id) do nothing;
+
+insert into subscriptions (tenant_id, plan_code, status) values
+  ('f0000001-0000-0000-0000-000000000001','negocio','active'),
+  ('f0000002-0000-0000-0000-000000000002','basico','active')
+on conflict (tenant_id) do nothing;
+
+-- ── Super-admin de la plataforma ─────────────────────────────────────────────
+insert into auth.users (instance_id, id, aud, role, email,
+  encrypted_password, email_confirmed_at, created_at, updated_at,
+  raw_app_meta_data, raw_user_meta_data)
+values ('00000000-0000-0000-0000-000000000000',
+  'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee','authenticated','authenticated',
+  'owner@plataforma.local', crypt('password123', gen_salt('bf')),
+  now(), now(), now(), '{"provider":"email","providers":["email"]}'::jsonb,
+  '{"full_name":"Dueño Plataforma"}'::jsonb)
+on conflict (id) do nothing;
+insert into platform_admins (user_id)
+values ('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee')
+on conflict (user_id) do nothing;
+
+-- ── Sucursales (Tenant A) ────────────────────────────────────────────────────
+insert into sucursales (id, tenant_id, code, name, address) values
+  ('11111111-1111-1111-1111-111111111111',
+   'f0000001-0000-0000-0000-000000000001','MX','Tienda Centro','Av. Juárez 100'),
+  ('22222222-2222-2222-2222-222222222222',
+   'f0000001-0000-0000-0000-000000000001','GD','Tienda Norte','Blvd. Norte 250')
+on conflict (id) do nothing;
+
+-- Sucursal + admin del Tenant B (para verificar que A no ve datos de B).
+insert into sucursales (id, tenant_id, code, name) values
+  ('33333333-3333-3333-3333-333333333333',
+   'f0000002-0000-0000-0000-000000000002','BB','Tienda B')
+on conflict (id) do nothing;
+insert into auth.users (instance_id, id, aud, role, email,
+  encrypted_password, email_confirmed_at, created_at, updated_at,
+  raw_app_meta_data, raw_user_meta_data)
+values ('00000000-0000-0000-0000-000000000000',
+  'b0000000-0000-0000-0000-0000000000bb','authenticated','authenticated',
+  'adminb@pos.local', crypt('password123', gen_salt('bf')),
+  now(), now(), now(), '{"provider":"email","providers":["email"]}'::jsonb,
+  '{"full_name":"Admin B"}'::jsonb)
+on conflict (id) do nothing;
+update profiles set role='administrador', active=true,
+  tenant_id='f0000002-0000-0000-0000-000000000002',
+  default_sucursal_id='33333333-3333-3333-3333-333333333333'
+where id='b0000000-0000-0000-0000-0000000000bb';
+insert into user_sucursales (user_id, sucursal_id)
+values ('b0000000-0000-0000-0000-0000000000bb',
+        '33333333-3333-3333-3333-333333333333')
+on conflict do nothing;
 
 -- ── Usuarios (auth.users → trigger crea profiles) ────────────────────────────
 do $$
@@ -36,6 +90,7 @@ begin
       set role = (u.v->>'role')::user_role,
           active = true,
           full_name = u.v->>'name',
+          tenant_id = 'f0000001-0000-0000-0000-000000000001',
           default_sucursal_id = '11111111-1111-1111-1111-111111111111'
     where id = (u.v->>'id')::uuid;
 

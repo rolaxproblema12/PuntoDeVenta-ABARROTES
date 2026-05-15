@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LogOut, Moon, Sun } from 'lucide-react';
+import { LogOut, Moon, ShieldAlert, Sun } from 'lucide-react';
 import { ROLE_RANK } from '@abarrotes/shared';
 import { MENU } from '@/lib/menu';
 import { useTheme } from '@/lib/theme';
@@ -9,7 +9,7 @@ import { useAuth } from '@/features/auth/AuthProvider';
 import { SyncIndicator } from './SyncIndicator';
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const { profile } = useAuth();
+  const { profile, isPlatformAdmin } = useAuth();
   const { theme, toggle } = useTheme();
   const nav = useNavigate();
   const role = profile?.role ?? 'cajero';
@@ -36,6 +36,21 @@ export function AppShell({ children }: { children: ReactNode }) {
               {m.label}
             </NavLink>
           ))}
+          {isPlatformAdmin && (
+            <NavLink
+              to="/admin/platform"
+              className={({ isActive }) =>
+                `flex min-h-touch items-center gap-3 rounded-lg px-3 text-sm font-medium ${
+                  isActive
+                    ? 'bg-amber-600 text-white'
+                    : 'text-amber-600 hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`
+              }
+            >
+              <ShieldAlert size={18} />
+              Plataforma
+            </NavLink>
+          )}
         </nav>
         <div className="border-t p-3 text-xs text-slate-500 dark:border-slate-800">
           {profile?.full_name} · {role}
