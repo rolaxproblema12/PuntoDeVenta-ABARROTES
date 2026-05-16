@@ -15,11 +15,16 @@ import { SupabaseService } from '../../common/supabase/supabase.service';
 class CashService {
   constructor(private readonly supabase: SupabaseService) {}
 
-  async open(token: string, input: OpenCashSessionInput) {
+  async open(token: string, userId: string, input: OpenCashSessionInput) {
     const { data, error } = await this.supabase
       .asUser(token)
       .from('cash_sessions')
-      .insert({ ...input, status: 'open' })
+      .insert({
+        ...input,
+        status: 'open',
+        opened_by: userId,
+        created_by: userId,
+      })
       .select('id, status, opening_amount')
       .single();
     if (error) throw new Error(error.message);
@@ -63,7 +68,7 @@ class CashController {
     @Body(new ZodValidationPipe(openCashSessionSchema))
     body: OpenCashSessionInput,
   ) {
-    return this.cash.open(req.accessToken, body);
+    return this.cash.open(req.accessToken, req.user.id, body);
   }
 
   @Post('sessions/:id/close')

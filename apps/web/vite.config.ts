@@ -5,6 +5,8 @@ import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  // El .env.local vive en la raíz del monorepo, no en apps/web.
+  envDir: fileURLToPath(new URL('../../', import.meta.url)),
   plugins: [
     react(),
     VitePWA({

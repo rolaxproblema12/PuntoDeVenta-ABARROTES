@@ -199,3 +199,24 @@ begin
             (row->>'co')::bigint,'seed');
   end loop;
 end $$;
+
+-- ── Normaliza auth.users (GoTrue exige estas columnas NO nulas) ──────────────
+-- Sin esto, el login de los usuarios sembrados falla con
+-- "Database error querying schema". Idempotente.
+update auth.users set
+  instance_id                = coalesce(instance_id,'00000000-0000-0000-0000-000000000000'),
+  aud                        = coalesce(nullif(aud,''),'authenticated'),
+  role                       = coalesce(nullif(role,''),'authenticated'),
+  confirmation_token         = coalesce(confirmation_token,''),
+  recovery_token             = coalesce(recovery_token,''),
+  email_change               = coalesce(email_change,''),
+  email_change_token_new     = coalesce(email_change_token_new,''),
+  email_change_token_current = coalesce(email_change_token_current,''),
+  email_change_confirm_status= coalesce(email_change_confirm_status,0),
+  phone_change               = coalesce(phone_change,''),
+  phone_change_token         = coalesce(phone_change_token,''),
+  reauthentication_token     = coalesce(reauthentication_token,''),
+  confirmation_sent_at       = confirmation_sent_at,
+  email_confirmed_at         = coalesce(email_confirmed_at, now()),
+  is_sso_user                = coalesce(is_sso_user,false)
+where email like '%@pos.local' or email like '%@plataforma.local';

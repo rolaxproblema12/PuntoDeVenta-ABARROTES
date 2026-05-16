@@ -1,10 +1,5 @@
-import { lazy, Suspense } from 'react';
-import {
-  BrowserRouter,
-  Navigate,
-  Route,
-  Routes,
-} from 'react-router-dom';
+import { lazy, Suspense, type ReactNode } from 'react';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import type { UserRole } from '@abarrotes/shared';
 import { AuthProvider, useAuth } from '@/features/auth/AuthProvider';
 import {
@@ -14,12 +9,30 @@ import {
   RoleRoute,
 } from '@/routes/guards';
 import { AppShell } from '@/components/AppShell';
-import { ModulePage } from '@/features/_placeholder/ModulePage';
 
 const LoginPage = lazy(() => import('@/features/auth/LoginPage'));
 const LandingPage = lazy(() => import('@/features/marketing/LandingPage'));
 const PricingPage = lazy(() => import('@/features/marketing/PricingPage'));
 const SignupPage = lazy(() => import('@/features/marketing/SignupPage'));
+const BillingPage = lazy(() => import('@/features/billing/BillingPage'));
+const PlatformDashboard = lazy(
+  () => import('@/features/platform/PlatformDashboard'),
+);
+const PosPage = lazy(() => import('@/features/pos/PosPage'));
+const CashPage = lazy(() => import('@/features/cash/CashPage'));
+const ProductsPage = lazy(() => import('@/features/products/ProductsPage'));
+const InventoryPage = lazy(() => import('@/features/inventory/InventoryPage'));
+const CustomersPage = lazy(() => import('@/features/customers/CustomersPage'));
+const PurchasingPage = lazy(
+  () => import('@/features/purchasing/PurchasingPage'),
+);
+const ReportsPage = lazy(() => import('@/features/reports/ReportsPage'));
+const SucursalesPage = lazy(
+  () => import('@/features/sucursales/SucursalesPage'),
+);
+const SecurityPage = lazy(() => import('@/features/security/SecurityPage'));
+const CloudPage = lazy(() => import('@/features/cloud/CloudPage'));
+const SmartPage = lazy(() => import('@/features/smart/SmartPage'));
 
 /** Home pública: si ya hay sesión, entra al sistema. */
 function PublicHome() {
@@ -28,148 +41,25 @@ function PublicHome() {
   if (session) return <Navigate to="/pos" replace />;
   return <LandingPage />;
 }
-const BillingPage = lazy(() => import('@/features/billing/BillingPage'));
-const PlatformDashboard = lazy(
-  () => import('@/features/platform/PlatformDashboard'),
-);
-const PosPage = lazy(() => import('@/features/pos/PosPage'));
-const CashPage = lazy(() => import('@/features/cash/CashPage'));
 
-interface Skeleton {
+interface AppRoute {
   path: string;
-  title: string;
-  phase: number;
-  minRole: UserRole;
-  features: string[];
+  el: ReactNode;
+  minRole?: UserRole;
 }
 
-const SKELETONS: Skeleton[] = [
-  {
-    path: '/inventory',
-    title: 'Inventario Inteligente',
-    phase: 1,
-    minRole: 'encargado',
-    features: [
-      'Stock en tiempo real por sucursal',
-      'Lotes y caducidades',
-      'Ajustes y mermas',
-      'Traspasos entre sucursales',
-      'Kardex / historial',
-      'Alertas de bajo inventario',
-    ],
-  },
-  {
-    path: '/products',
-    title: 'Gestión de Productos',
-    phase: 1,
-    minRole: 'encargado',
-    features: [
-      'Categorías y marcas',
-      'Códigos de barras y packs',
-      'Listas de precios / mayoreo',
-      'Variantes y combos',
-      'Productos restringidos por edad',
-      'Promociones programadas',
-    ],
-  },
-  {
-    path: '/customers',
-    title: 'Clientes y Créditos',
-    phase: 2,
-    minRole: 'cajero',
-    features: [
-      'Registro de clientes',
-      'Crédito y abonos',
-      'Estado de cuenta',
-      'Límites de crédito',
-      'Puntos / lealtad',
-      'Clientes frecuentes',
-    ],
-  },
-  {
-    path: '/purchasing',
-    title: 'Compras y Proveedores',
-    phase: 2,
-    minRole: 'encargado',
-    features: [
-      'Órdenes de compra',
-      'Recepción de mercancía',
-      'Costos históricos',
-      'Cuentas por pagar',
-      'Proveedores frecuentes',
-      'Lotes desde recepción',
-    ],
-  },
-  {
-    path: '/reports',
-    title: 'Reportes y Analítica',
-    phase: 3,
-    minRole: 'supervisor',
-    features: [
-      'Dashboard con gráficas',
-      'Ventas diarias/semanales/mensuales',
-      'Productos más/menos vendidos',
-      'Utilidad por producto',
-      'Comparativa entre sucursales',
-      'Exportar PDF / Excel',
-    ],
-  },
-  {
-    path: '/sucursales',
-    title: 'Multi Sucursal',
-    phase: 1,
-    minRole: 'administrador',
-    features: [
-      'Administración centralizada',
-      'Inventario independiente',
-      'Usuarios por sucursal',
-      'Dashboard central',
-      'Transferencias',
-      'Reportes globales',
-    ],
-  },
-  {
-    path: '/security',
-    title: 'Usuarios y Seguridad',
-    phase: 1,
-    minRole: 'administrador',
-    features: [
-      'Roles y permisos avanzados',
-      'Bitácora de actividad',
-      'Validación por PIN',
-      'Control de sesiones',
-      'Códigos de acceso',
-      'Recuperación de contraseña',
-    ],
-  },
-  {
-    path: '/smart',
-    title: 'Funciones Inteligentes',
-    phase: 4,
-    minRole: 'supervisor',
-    features: [
-      'Detección de alta rotación',
-      'Predicción de faltantes',
-      'Recomendación de precios',
-      'Búsqueda inteligente',
-      'Dashboard ejecutivo',
-      '(IA diferida — sin ML en v1)',
-    ],
-  },
-  {
-    path: '/cloud',
-    title: 'Nube / Sincronización',
-    phase: 1,
-    minRole: 'encargado',
-    features: [
-      'Sincronización en tiempo real',
-      'Cola offline + reintento',
-      'Resolución de conflictos',
-      'Backups automáticos',
-      'Restauración',
-      'Escalabilidad empresarial',
-    ],
-  },
+const APP_ROUTES: AppRoute[] = [
+  { path: '/pos', el: <PosPage /> },
+  { path: '/cash', el: <CashPage /> },
+  { path: '/products', el: <ProductsPage />, minRole: 'encargado' },
+  { path: '/inventory', el: <InventoryPage />, minRole: 'encargado' },
+  { path: '/customers', el: <CustomersPage /> },
+  { path: '/purchasing', el: <PurchasingPage />, minRole: 'encargado' },
+  { path: '/reports', el: <ReportsPage />, minRole: 'supervisor' },
+  { path: '/sucursales', el: <SucursalesPage />, minRole: 'administrador' },
+  { path: '/security', el: <SecurityPage />, minRole: 'administrador' },
+  { path: '/smart', el: <SmartPage />, minRole: 'supervisor' },
+  { path: '/cloud', el: <CloudPage />, minRole: 'encargado' },
 ];
 
 export default function App() {
@@ -217,25 +107,29 @@ export default function App() {
                   <BillingGate>
                     <AppShell>
                       <Routes>
-                      <Route path="/" element={<Navigate to="/pos" replace />} />
-                      <Route path="/pos" element={<PosPage />} />
-                      <Route path="/cash" element={<CashPage />} />
-                      {SKELETONS.map((s) => (
                         <Route
-                          key={s.path}
-                          path={s.path}
-                          element={
-                            <RoleRoute minRole={s.minRole}>
-                              <ModulePage
-                                title={s.title}
-                                phase={s.phase}
-                                features={s.features}
-                              />
-                            </RoleRoute>
-                          }
+                          path="/"
+                          element={<Navigate to="/pos" replace />}
                         />
-                      ))}
-                      <Route path="*" element={<Navigate to="/pos" replace />} />
+                        {APP_ROUTES.map((r) => (
+                          <Route
+                            key={r.path}
+                            path={r.path}
+                            element={
+                              r.minRole ? (
+                                <RoleRoute minRole={r.minRole}>
+                                  {r.el}
+                                </RoleRoute>
+                              ) : (
+                                r.el
+                              )
+                            }
+                          />
+                        ))}
+                        <Route
+                          path="*"
+                          element={<Navigate to="/pos" replace />}
+                        />
                       </Routes>
                     </AppShell>
                   </BillingGate>
