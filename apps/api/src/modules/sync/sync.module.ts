@@ -1,11 +1,11 @@
 import { Body, Controller, Module, Post, Req } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import {
+  replaySyncOpSchema,
+  type ReplaySyncOpInput,
+} from '@abarrotes/shared';
+import { ZodValidationPipe } from '../../common/zod-validation.pipe';
 import { SupabaseService } from '../../common/supabase/supabase.service';
-
-interface ReplayBody {
-  op_type: 'sale.create' | 'sale.cancel' | 'return.create';
-  payload: unknown;
-}
 
 @ApiTags('sync')
 @Controller('sync')
@@ -17,7 +17,10 @@ class SyncController {
    * `replay_sync_op` deduplica por client_op_id en `sync_queue`.
    */
   @Post('replay')
-  async replay(@Req() req: any, @Body() body: ReplayBody) {
+  async replay(
+    @Req() req: any,
+    @Body(new ZodValidationPipe(replaySyncOpSchema)) body: ReplaySyncOpInput,
+  ) {
     const { data, error } = await this.supabase
       .asUser(req.accessToken)
       .rpc('replay_sync_op', { p_payload: body });

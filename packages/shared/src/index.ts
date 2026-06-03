@@ -13,5 +13,7 @@ export * from './schemas/sale';
 export * from './schemas/product';
 export * from './schemas/customer';
 export * from './schemas/cash';
+export * from './schemas/inventory';
 export * from './schemas/purchase';
 export * from './schemas/tenant';
+export * from './schemas/sync';

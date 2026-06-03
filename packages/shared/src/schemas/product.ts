@@ -37,6 +37,19 @@ export const upsertCategorySchema = z.object({
   sort: z.number().int().default(0),
 });
 
+/**
+ * Payload del alta/edición de producto desde la web hacia la RPC atómica
+ * `upsert_product` (products + product_prices + product_barcodes + stock inicial).
+ * `price`/`cost` en centavos; `initial_stock` solo aplica en el alta.
+ */
+export const saveProductSchema = upsertProductSchema.extend({
+  price: z.number().int().nonnegative().default(0),
+  cost: z.number().int().nonnegative().default(0),
+  barcode: z.string().trim().max(64).nullable().default(null),
+  initial_stock: z.number().nonnegative().default(0),
+});
+
 export type UpsertProductInput = z.infer<typeof upsertProductSchema>;
 export type UpsertBarcodeInput = z.infer<typeof upsertBarcodeSchema>;
 export type UpsertCategoryInput = z.infer<typeof upsertCategorySchema>;
+export type SaveProductInput = z.infer<typeof saveProductSchema>;

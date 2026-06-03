@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import { formatMoney, type PlanCode } from '@abarrotes/shared';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { api } from '@/lib/apiClient';
+import { PageHeader, Card, Badge } from '@/components/ui';
 
 /** Facturación: Stripe Checkout (suscribirse) y Billing Portal (gestionar). */
 export default function BillingPage() {
@@ -26,51 +27,90 @@ export default function BillingPage() {
 
   if (!tenant) {
     return (
-      <div className="mx-auto max-w-lg p-6">
-        <h1 className="text-2xl font-bold">Facturación</h1>
-        <p className="mt-2 text-slate-500">Sin tenant asociado.</p>
+      <div className="page">
+        <PageHeader title="Facturación" subtitle="Sin tenant asociado." />
+        <div className="card">
+          <div className="card-bd" style={{ paddingTop: 16 }}>
+            <p className="text-3">Sin tenant asociado.</p>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-lg space-y-4 p-6">
-      <h1 className="text-2xl font-bold">Facturación</h1>
-      <div className="rounded-xl border p-4 dark:border-slate-800">
-        <p className="text-sm text-slate-500">Negocio</p>
-        <p className="font-semibold">{tenant.name}</p>
-        <p className="mt-2 text-sm text-slate-500">Plan</p>
-        <p className="font-semibold capitalize">{tenant.plan_code}</p>
-        <p className="mt-2 text-sm text-slate-500">Estado</p>
-        <p className="font-semibold capitalize">{tenant.status}</p>
-        {tenant.trial_ends_at && (
-          <p className="mt-2 text-xs text-slate-400">
-            Prueba hasta {new Date(tenant.trial_ends_at).toLocaleDateString()}
-          </p>
-        )}
-      </div>
+    <div className="page">
+      <PageHeader
+        title="Facturación"
+        subtitle="Gestiona tu suscripción y método de pago"
+      />
 
-      <button
-        disabled={busy}
-        onClick={() =>
-          go('/billing/checkout', {
-            plan_code: tenant.plan_code as PlanCode,
-          })
-        }
-        className="btn-touch w-full bg-brand text-white hover:bg-brand-dark"
-      >
-        {busy ? 'Redirigiendo…' : 'Suscribirme / Cambiar plan'}
-      </button>
-      <button
-        disabled={busy}
-        onClick={() => go('/billing/portal')}
-        className="btn-touch w-full border dark:border-slate-700"
-      >
-        Gestionar método de pago
-      </button>
-      <p className="text-xs text-slate-400">
-        Pagos seguros con Stripe. Precios desde {formatMoney(49900)} / mes.
-      </p>
+      <div style={{ maxWidth: 520 }}>
+        <Card title="Suscripción" sub="Detalles de tu negocio y plan">
+          <div
+            style={{ display: 'flex', flexDirection: 'column', gap: 14 }}
+          >
+            <div>
+              <div className="label">Negocio</div>
+              <div className="fw-600">{tenant.name}</div>
+            </div>
+            <div className="hr" style={{ margin: 0 }} />
+            <div className="flex items-center justify-between">
+              <div className="text-2 text-sm">Plan</div>
+              <Badge tone="accent">{tenant.plan_code}</Badge>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="text-2 text-sm">Estado</div>
+              <Badge
+                tone={tenant.status === 'active' ? 'pos' : 'warn'}
+                dot
+              >
+                {tenant.status}
+              </Badge>
+            </div>
+            {tenant.trial_ends_at && (
+              <div className="text-3 text-xs">
+                Prueba hasta{' '}
+                {new Date(tenant.trial_ends_at).toLocaleDateString()}
+              </div>
+            )}
+          </div>
+
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 8,
+              marginTop: 18,
+            }}
+          >
+            <button
+              disabled={busy}
+              onClick={() =>
+                go('/billing/checkout', {
+                  plan_code: tenant.plan_code as PlanCode,
+                })
+              }
+              className="btn accent"
+              style={{ width: '100%', height: 38, justifyContent: 'center' }}
+            >
+              {busy ? 'Redirigiendo…' : 'Suscribirme / Cambiar plan'}
+            </button>
+            <button
+              disabled={busy}
+              onClick={() => go('/billing/portal')}
+              className="btn"
+              style={{ width: '100%', height: 38, justifyContent: 'center' }}
+            >
+              Gestionar método de pago
+            </button>
+            <p className="text-3 text-xs" style={{ margin: '4px 0 0' }}>
+              Pagos seguros con Stripe. Precios desde {formatMoney(49900)} /
+              mes.
+            </p>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 }

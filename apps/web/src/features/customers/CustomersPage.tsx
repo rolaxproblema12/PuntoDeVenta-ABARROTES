@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { HandCoins, Pencil, Plus, X } from 'lucide-react';
+import { HandCoins, Pencil, Plus, Search } from 'lucide-react';
 import { formatMoney, fromCents, toCents } from '@abarrotes/shared';
 import { supabase } from '@/lib/supabase';
 import { useActiveSucursal } from '@/lib/useActiveSucursal';
+import { PageHeader, Modal, EmptyState } from '@/components/ui';
 
 interface Customer {
   id: string;
@@ -73,15 +74,22 @@ export default function CustomersPage() {
     mutationFn: async (a: NonNullable<typeof abono>) => {
       const cents = toCents(Number(a.amount) || 0);
       if (cents <= 0) throw new Error('Monto inválido');
-      const { error } = await supabase
-        .from('customer_credit_movements')
-        .insert({
+      if (cents > a.c.current_balance)
+        throw new Error(
+          `El abono (${formatMoney(cents)}) excede el saldo (${formatMoney(
+            a.c.current_balance,
+          )})`,
+        );
+      // RPC atómica: valida amount <= saldo con la fila bloqueada (no deja saldo
+      // negativo). Ver register_credit_payment en 0025_accounting_hardening.sql.
+      const { error } = await supabase.rpc('register_credit_payment', {
+        p_payload: {
           customer_id: a.c.id,
           sucursal_id: sucursalId,
-          kind: 'abono',
           amount: cents,
           note: 'Abono en mostrador',
-        });
+        },
+      });
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
@@ -102,163 +110,213 @@ export default function CustomersPage() {
   }, [term, customers]);
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <div className="mb-4 flex items-center gap-3">
-        <h1 className="text-2xl font-bold">Clientes</h1>
-        <button
-          onClick={() => setForm({ _new: true, active: true, credit_limit: 0 })}
-          className="btn-touch ml-auto bg-brand px-4 text-white"
-        >
-          <Plus size={18} /> Nuevo
-        </button>
-      </div>
-      <input
-        value={term}
-        onChange={(e) => setTerm(e.target.value)}
-        placeholder="Buscar por nombre o teléfono…"
-        className="mb-4 w-full rounded-lg border p-3 dark:bg-slate-800"
+    <div className="page">
+      <PageHeader
+        title="Clientes"
+        subtitle={`${customers.length} clientes registrados`}
+        actions={
+          <button
+            onClick={() => setForm({ _new: true, active: true, credit_limit: 0 })}
+            className="btn primary"
+          >
+            <Plus size={13} /> Nuevo
+          </button>
+        }
       />
 
+      <div className="filters">
+        <div className="search-input" style={{ minWidth: 320 }}>
+          <Search size={13} />
+          <input
+            value={term}
+            onChange={(e) => setTerm(e.target.value)}
+            placeholder="Buscar por nombre o teléfono…"
+          />
+        </div>
+        <span
+          style={{
+            marginLeft: 'auto',
+            color: 'var(--text-3)',
+            fontSize: 'var(--text-sm)',
+          }}
+        >
+          {filtered.length} resultados
+        </span>
+      </div>
+
       {isLoading ? (
-        <p className="text-slate-400">Cargando…</p>
+        <p className="text-3">Cargando…</p>
+      ) : filtered.length === 0 ? (
+        <div className="card">
+          <EmptyState
+            title="Sin clientes"
+            hint="Crea el primero con “Nuevo”."
+            action={
+              <button
+                className="btn accent"
+                onClick={() =>
+                  setForm({ _new: true, active: true, credit_limit: 0 })
+                }
+              >
+                <Plus size={13} /> Nuevo
+              </button>
+            }
+          />
+        </div>
       ) : (
-        <table className="w-full text-sm">
-          <thead className="text-left text-slate-500">
-            <tr>
-              <th className="p-2">Cliente</th>
-              <th className="p-2">Teléfono</th>
-              <th className="p-2">Saldo</th>
-              <th className="p-2">Límite</th>
-              <th className="p-2"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((c) => (
-              <tr key={c.id} className="border-t dark:border-slate-800">
-                <td className="p-2 font-medium">{c.name}</td>
-                <td className="p-2 text-slate-400">{c.phone ?? '—'}</td>
-                <td
-                  className={`p-2 ${c.current_balance > 0 ? 'text-amber-600' : ''}`}
-                >
-                  {formatMoney(c.current_balance)}
-                </td>
-                <td className="p-2 text-slate-400">
-                  {formatMoney(c.credit_limit)}
-                </td>
-                <td className="p-2 text-right">
-                  <button
-                    onClick={() => setAbono({ c, amount: '' })}
-                    className="mr-3 text-green-600"
-                    title="Registrar abono"
-                  >
-                    <HandCoins size={16} />
-                  </button>
-                  <button
-                    onClick={() => setForm({ ...c })}
-                    className="text-brand"
-                  >
-                    <Pencil size={16} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {filtered.length === 0 && (
+        <div className="tbl-card">
+          <table className="tbl">
+            <thead>
               <tr>
-                <td colSpan={5} className="p-6 text-center text-slate-400">
-                  Sin clientes.
-                </td>
+                <th>Cliente</th>
+                <th>Teléfono</th>
+                <th style={{ textAlign: 'right' }}>Saldo</th>
+                <th style={{ textAlign: 'right' }}>Límite</th>
+                <th></th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filtered.map((c) => (
+                <tr key={c.id}>
+                  <td className="fw-500">{c.name}</td>
+                  <td className="muted">{c.phone ?? '—'}</td>
+                  <td className="num tnum">
+                    <span
+                      style={{
+                        color:
+                          c.current_balance > 0
+                            ? 'var(--warn)'
+                            : 'var(--text)',
+                      }}
+                    >
+                      {formatMoney(c.current_balance)}
+                    </span>
+                  </td>
+                  <td className="num tnum muted">
+                    {formatMoney(c.credit_limit)}
+                  </td>
+                  <td style={{ textAlign: 'right' }}>
+                    <button
+                      onClick={() => setAbono({ c, amount: '' })}
+                      className="btn ghost sm"
+                      title="Registrar abono"
+                      aria-label="Registrar abono"
+                    >
+                      <HandCoins size={13} />
+                    </button>
+                    <button
+                      onClick={() => setForm({ ...c })}
+                      className="btn ghost sm"
+                      aria-label="Editar"
+                    >
+                      <Pencil size={13} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       {form && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4">
-          <div className="w-full max-w-sm space-y-3 rounded-2xl bg-white p-6 dark:bg-slate-900">
-            <div className="flex items-center">
-              <h2 className="text-lg font-bold">
-                {form.id ? 'Editar' : 'Nuevo'} cliente
-              </h2>
-              <button
-                onClick={() => setForm(null)}
-                className="ml-auto text-slate-400"
-              >
-                <X size={20} />
-              </button>
-            </div>
+        <Modal
+          title={`${form.id ? 'Editar' : 'Nuevo'} cliente`}
+          onClose={() => setForm(null)}
+          maxWidth={400}
+          footer={
+            <button
+              disabled={save.isPending || !form.name?.trim()}
+              onClick={() => save.mutate(form)}
+              className="btn accent"
+              style={{ width: '100%', height: 38, justifyContent: 'center' }}
+            >
+              {save.isPending ? 'Guardando…' : 'Guardar'}
+            </button>
+          }
+        >
+          <div>
+            <label className="label">Nombre</label>
             <input
               autoFocus
-              className="w-full rounded-lg border p-3 dark:bg-slate-800"
+              className="field"
               placeholder="Nombre"
               value={form.name ?? ''}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
             />
+          </div>
+          <div>
+            <label className="label">Teléfono</label>
             <input
-              className="w-full rounded-lg border p-3 dark:bg-slate-800"
+              className="field"
               placeholder="Teléfono"
               value={form.phone ?? ''}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
             />
-            <label className="block text-sm">
-              Límite de crédito ($)
-              <input
-                type="number"
-                className="mt-1 w-full rounded-lg border p-3 dark:bg-slate-800"
-                value={
-                  form.credit_limit != null ? fromCents(form.credit_limit) : ''
-                }
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    credit_limit: toCents(Number(e.target.value) || 0),
-                  })
-                }
-              />
-            </label>
-            <button
-              disabled={save.isPending || !form.name?.trim()}
-              onClick={() => save.mutate(form)}
-              className="btn-touch w-full bg-brand text-white"
-            >
-              {save.isPending ? 'Guardando…' : 'Guardar'}
-            </button>
           </div>
-        </div>
+          <div>
+            <label className="label">Límite de crédito ($)</label>
+            <input
+              type="number"
+              className="field"
+              value={
+                form.credit_limit != null ? fromCents(form.credit_limit) : ''
+              }
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  credit_limit: toCents(Number(e.target.value) || 0),
+                })
+              }
+            />
+          </div>
+        </Modal>
       )}
 
       {abono && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4">
-          <div className="w-full max-w-sm space-y-3 rounded-2xl bg-white p-6 dark:bg-slate-900">
-            <h2 className="text-lg font-bold">Abono · {abono.c.name}</h2>
-            <p className="text-sm text-slate-500">
-              Saldo actual: {formatMoney(abono.c.current_balance)}
-            </p>
-            <input
-              type="number"
-              autoFocus
-              placeholder="Monto del abono ($)"
-              className="w-full rounded-lg border p-3 dark:bg-slate-800"
-              value={abono.amount}
-              onChange={(e) => setAbono({ ...abono, amount: e.target.value })}
-            />
-            <div className="flex gap-2">
+        <Modal
+          title={`Abono · ${abono.c.name}`}
+          onClose={() => setAbono(null)}
+          maxWidth={400}
+          footer={
+            <div className="flex gap-sm">
               <button
                 onClick={() => setAbono(null)}
-                className="btn-touch flex-1 border dark:border-slate-700"
+                className="btn"
+                style={{ flex: 1, justifyContent: 'center' }}
               >
                 Cancelar
               </button>
               <button
-                disabled={doAbono.isPending}
+                disabled={
+                  doAbono.isPending ||
+                  toCents(Number(abono.amount) || 0) <= 0 ||
+                  toCents(Number(abono.amount) || 0) > abono.c.current_balance
+                }
                 onClick={() => doAbono.mutate(abono)}
-                className="btn-touch flex-1 bg-green-600 text-white"
+                className="btn accent"
+                style={{ flex: 1, justifyContent: 'center' }}
               >
-                Registrar
+                {doAbono.isPending ? 'Registrando…' : 'Registrar'}
               </button>
             </div>
+          }
+        >
+          <p className="text-sm text-3 mb-md">
+            Saldo actual: {formatMoney(abono.c.current_balance)}
+          </p>
+          <div>
+            <label className="label">Monto del abono ($)</label>
+            <input
+              type="number"
+              autoFocus
+              placeholder="Monto del abono ($)"
+              className="field"
+              value={abono.amount}
+              onChange={(e) => setAbono({ ...abono, amount: e.target.value })}
+            />
           </div>
-        </div>
+        </Modal>
       )}
     </div>
   );

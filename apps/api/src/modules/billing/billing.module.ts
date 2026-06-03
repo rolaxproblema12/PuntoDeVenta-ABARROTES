@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Injectable,
@@ -139,13 +140,13 @@ class BillingController {
     @Req() req: any,
     @Body(new ZodValidationPipe(checkoutSchema)) body: CheckoutInput,
   ) {
-    if (!req.user?.tenantId) throw new Error('Sin tenant');
+    if (!req.user?.tenantId) throw new BadRequestException('Sin tenant');
     return this.svc.checkout(req.user.tenantId, body);
   }
 
   @Post('portal')
   portal(@Req() req: any) {
-    if (!req.user?.tenantId) throw new Error('Sin tenant');
+    if (!req.user?.tenantId) throw new BadRequestException('Sin tenant');
     return this.svc.portal(req.user.tenantId);
   }
 
@@ -153,6 +154,7 @@ class BillingController {
   @Post('webhook')
   webhook(@Req() req: any) {
     const sig = req.headers['stripe-signature'];
+    if (!sig) throw new BadRequestException('Firma Stripe ausente');
     return this.svc.handleWebhook(req.rawBody, sig);
   }
 }

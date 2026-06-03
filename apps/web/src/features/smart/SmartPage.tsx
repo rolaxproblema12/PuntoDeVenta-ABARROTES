@@ -1,8 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
-import { Sparkles, TrendingDown, TrendingUp } from 'lucide-react';
+import {
+  Sparkles,
+  TrendingDown,
+  TrendingUp,
+  ShoppingCart,
+  Flame,
+  Snail,
+} from 'lucide-react';
 import { formatMoney } from '@abarrotes/shared';
 import { supabase } from '@/lib/supabase';
 import { useActiveSucursal } from '@/lib/useActiveSucursal';
+import { PageHeader, Card, Badge, EmptyState } from '@/components/ui';
 
 /**
  * Inteligencia v1: heurísticas (sin ML). Recomendaciones de compra por bajo
@@ -55,82 +63,99 @@ export default function SmartPage() {
   });
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
-      <h1 className="flex items-center gap-2 text-2xl font-bold">
-        <Sparkles className="text-brand" /> Inteligencia
-      </h1>
-      <p className="text-sm text-slate-500">
-        Recomendaciones automáticas basadas en tus datos (heurísticas, sin
-        costo de IA). Predicción avanzada llegará en una fase posterior.
-      </p>
+    <div className="page">
+      <PageHeader
+        title="Inteligencia"
+        subtitle={
+          <span className="flex items-center gap-sm">
+            <Sparkles size={13} className="text-acc" /> Recomendaciones
+            automáticas basadas en tus datos (heurísticas, sin costo de IA).
+            Predicción avanzada llegará en una fase posterior.
+          </span>
+        }
+      />
 
-      <Card title="🛒 Recomendación de compra (bajo stock)">
+      <Card
+        title={
+          <span className="flex items-center gap-sm">
+            <ShoppingCart size={14} /> Recomendación de compra (bajo stock)
+          </span>
+        }
+      >
         {lowStock.length === 0 ? (
-          <Empty>Todo con stock suficiente.</Empty>
+          <EmptyState
+            icon={ShoppingCart}
+            title="Todo con stock suficiente."
+          />
         ) : (
-          lowStock.map((r: any, i: number) => (
-            <Line key={i}>
-              <span>{r.products.name}</span>
-              <span className="text-amber-600">
-                stock {r.stock} / mín {r.products.min_stock} → reabastecer
-              </span>
-            </Line>
-          ))
+          <div className="feed">
+            {lowStock.map((r: any, i: number) => (
+              <div key={i} className="feed-item">
+                <div className="feed-bd">
+                  <span className="fw-500">{r.products.name}</span>
+                </div>
+                <Badge tone="warn" dot>
+                  stock {r.stock} / mín {r.products.min_stock} → reabastecer
+                </Badge>
+              </div>
+            ))}
+          </div>
         )}
       </Card>
 
-      <Card title="🔥 Alta rotación">
+      <Card
+        title={
+          <span className="flex items-center gap-sm">
+            <Flame size={14} /> Alta rotación
+          </span>
+        }
+      >
         {top.length === 0 ? (
-          <Empty>Sin ventas todavía.</Empty>
+          <EmptyState icon={Flame} title="Sin ventas todavía." />
         ) : (
-          top.map((t: any, i: number) => (
-            <Line key={i}>
-              <span className="flex items-center gap-2">
-                <TrendingUp size={14} className="text-green-600" />
-                {t.name}
-              </span>
-              <span className="text-slate-400">
-                {t.qty_sold} u · {formatMoney(Number(t.revenue ?? 0))}
-              </span>
-            </Line>
-          ))
+          <div className="feed">
+            {top.map((t: any, i: number) => (
+              <div key={i} className="feed-item">
+                <div className="feed-icon">
+                  <TrendingUp size={14} className="text-pos" />
+                </div>
+                <div className="feed-bd">
+                  <span className="fw-500">{t.name}</span>
+                </div>
+                <span className="text-3 text-sm tnum">
+                  {t.qty_sold} u · {formatMoney(Number(t.revenue ?? 0))}
+                </span>
+              </div>
+            ))}
+          </div>
         )}
       </Card>
 
-      <Card title="🐌 Baja rotación (revisar precio/promoción)">
+      <Card
+        title={
+          <span className="flex items-center gap-sm">
+            <Snail size={14} /> Baja rotación (revisar precio/promoción)
+          </span>
+        }
+      >
         {slow.length === 0 ? (
-          <Empty>Sin datos.</Empty>
+          <EmptyState icon={Snail} title="Sin datos." />
         ) : (
-          slow.map((t: any, i: number) => (
-            <Line key={i}>
-              <span className="flex items-center gap-2">
-                <TrendingDown size={14} className="text-red-500" />
-                {t.name}
-              </span>
-              <span className="text-slate-400">{t.qty_sold} u</span>
-            </Line>
-          ))
+          <div className="feed">
+            {slow.map((t: any, i: number) => (
+              <div key={i} className="feed-item">
+                <div className="feed-icon">
+                  <TrendingDown size={14} className="text-neg" />
+                </div>
+                <div className="feed-bd">
+                  <span className="fw-500">{t.name}</span>
+                </div>
+                <span className="text-3 text-sm tnum">{t.qty_sold} u</span>
+              </div>
+            ))}
+          </div>
         )}
       </Card>
     </div>
   );
-}
-
-function Card({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="rounded-xl border p-4 dark:border-slate-800">
-      <h2 className="mb-2 font-bold">{title}</h2>
-      <div className="space-y-1 text-sm">{children}</div>
-    </div>
-  );
-}
-function Line({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex justify-between border-b py-1 last:border-0 dark:border-slate-800">
-      {children}
-    </div>
-  );
-}
-function Empty({ children }: { children: React.ReactNode }) {
-  return <p className="py-3 text-center text-slate-400">{children}</p>;
 }

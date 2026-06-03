@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { CloudOff, RefreshCw } from 'lucide-react';
 import { subscribeQueue, type SyncOp } from '@/lib/syncQueue';
+import { Badge } from '@/components/ui';
 
 export function SyncIndicator() {
   const [ops, setOps] = useState<SyncOp[]>([]);
@@ -23,9 +24,9 @@ export function SyncIndicator() {
 
   if (online && pending === 0) return null;
   return (
-    <div className="flex items-center gap-2 rounded-lg bg-amber-500/15 px-3 py-1 text-sm text-amber-600 dark:text-amber-400">
+    <Badge tone={online ? 'warn' : 'neg'}>
       {online ? <RefreshCw size={16} /> : <CloudOff size={16} />}
       {online ? `${pending} venta(s) por sincronizar` : 'Sin conexión'}
-    </div>
+    </Badge>
   );
 }

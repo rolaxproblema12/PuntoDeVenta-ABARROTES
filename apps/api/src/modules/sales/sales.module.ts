@@ -4,6 +4,7 @@ import {
   Get,
   Module,
   Param,
+  ParseUUIDPipe,
   Post,
   Query,
   Req,
@@ -45,7 +46,11 @@ class SalesController {
   }
 
   @Get()
-  list(@Req() req: any, @Query('sucursal_id') sucursalId: string) {
+  list(
+    @Req() req: any,
+    @Query('sucursal_id', new ParseUUIDPipe({ version: '4' }))
+    sucursalId: string,
+  ) {
     return this.sales.listSales(req.accessToken, sucursalId);
   }
 }

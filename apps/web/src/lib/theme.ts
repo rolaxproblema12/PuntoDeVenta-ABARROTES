@@ -11,7 +11,7 @@ interface ThemeState {
 export const useTheme = create<ThemeState>()(
   persist(
     (set, get) => ({
-      theme: 'dark',
+      theme: 'light',
       toggle: () => {
         const next = get().theme === 'dark' ? 'light' : 'dark';
         applyTheme(next);
@@ -21,12 +21,13 @@ export const useTheme = create<ThemeState>()(
     {
       name: 'abarrotes-theme',
       onRehydrateStorage: () => (state) => {
-        if (state) applyTheme(state.theme);
+        applyTheme(state?.theme ?? 'light');
       },
     },
   ),
 );
 
+/** Tema claro/oscuro. El acento (indigo) vive en <html class="theme-accent-indigo">. */
 export function applyTheme(theme: Theme): void {
-  document.documentElement.classList.toggle('dark', theme === 'dark');
+  document.documentElement.classList.toggle('theme-dark', theme === 'dark');
 }

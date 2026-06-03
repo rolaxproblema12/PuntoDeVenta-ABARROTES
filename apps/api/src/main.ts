@@ -22,7 +22,14 @@ async function bootstrap(): Promise<void> {
     type: VersioningType.URI,
     defaultVersion: ENV.apiVersion,
   });
-  app.enableCors({ origin: true, credentials: true });
+  // En producción usa la allowlist de ENV; en dev (o sin allowlist) abre origin
+  // para no romper el flujo local.
+  const useAllowlist =
+    ENV.nodeEnv === 'production' && ENV.corsOrigins.length > 0;
+  app.enableCors({
+    origin: useAllowlist ? ENV.corsOrigins : true,
+    credentials: true,
+  });
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('ABARROTES POS API')

@@ -54,67 +54,139 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
+    <div
+      style={{
+        minHeight: '100vh',
+        background: 'var(--bg)',
+        color: 'var(--text)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 16,
+      }}
+    >
       <form
         onSubmit={submit}
-        className="w-full max-w-md space-y-3 rounded-2xl bg-white p-8 shadow-xl dark:bg-slate-900"
+        className="card"
+        style={{
+          width: '100%',
+          maxWidth: 420,
+          padding: 32,
+          boxShadow: 'var(--shadow-lg)',
+        }}
       >
-        <h1 className="text-2xl font-bold">Crea tu sistema</h1>
-        <p className="text-sm text-slate-500">
+        <span
+          style={{
+            width: 30,
+            height: 30,
+            borderRadius: 8,
+            background: 'var(--text)',
+            color: 'var(--bg-elev)',
+            display: 'grid',
+            placeItems: 'center',
+            fontSize: 17,
+            fontWeight: 800,
+            letterSpacing: '-0.04em',
+            marginBottom: 16,
+          }}
+        >
+          a
+        </span>
+        <h1
+          style={{
+            margin: 0,
+            fontSize: 22,
+            fontWeight: 700,
+            letterSpacing: '-0.02em',
+          }}
+        >
+          Crea tu sistema
+        </h1>
+        <p className="text-2 text-sm" style={{ margin: '6px 0 20px' }}>
           14 días gratis. Sin tarjeta para empezar.
         </p>
-        <input
-          required
-          className="w-full rounded-lg border p-3 dark:bg-slate-800"
-          placeholder="Nombre del negocio"
-          value={form.business_name}
-          onChange={(e) => set('business_name', e.target.value)}
-        />
-        <input
-          required
-          className="w-full rounded-lg border p-3 dark:bg-slate-800"
-          placeholder="Tu nombre"
-          value={form.owner_name}
-          onChange={(e) => set('owner_name', e.target.value)}
-        />
-        <input
-          required
-          type="email"
-          className="w-full rounded-lg border p-3 dark:bg-slate-800"
-          placeholder="Correo"
-          value={form.email}
-          onChange={(e) => set('email', e.target.value)}
-        />
-        <input
-          required
-          type="password"
-          minLength={8}
-          className="w-full rounded-lg border p-3 dark:bg-slate-800"
-          placeholder="Contraseña (mín. 8)"
-          value={form.password}
-          onChange={(e) => set('password', e.target.value)}
-        />
-        <select
-          className="w-full rounded-lg border p-3 dark:bg-slate-800"
-          value={form.plan_code}
-          onChange={(e) => set('plan_code', e.target.value as PlanCode)}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div>
+            <label className="label">Nombre del negocio</label>
+            <input
+              required
+              className="field"
+              placeholder="Nombre del negocio"
+              value={form.business_name}
+              onChange={(e) => set('business_name', e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="label">Tu nombre</label>
+            <input
+              required
+              className="field"
+              placeholder="Tu nombre"
+              value={form.owner_name}
+              onChange={(e) => set('owner_name', e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="label">Correo</label>
+            <input
+              required
+              type="email"
+              className="field"
+              placeholder="Correo"
+              value={form.email}
+              onChange={(e) => set('email', e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="label">Contraseña</label>
+            <input
+              required
+              type="password"
+              minLength={8}
+              className="field"
+              placeholder="Contraseña (mín. 8)"
+              value={form.password}
+              onChange={(e) => set('password', e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="label">Plan</label>
+            <select
+              className="field"
+              value={form.plan_code}
+              onChange={(e) => set('plan_code', e.target.value as PlanCode)}
+            >
+              {plans.map((p) => (
+                <option key={p.code} value={p.code}>
+                  {p.name} — {formatMoney(p.price_cents)}/mes ·{' '}
+                  {p.max_sucursales} suc · {p.max_users} usuarios
+                </option>
+              ))}
+            </select>
+          </div>
+          <button
+            disabled={busy}
+            className="btn accent"
+            style={{
+              width: '100%',
+              height: 38,
+              justifyContent: 'center',
+              marginTop: 4,
+            }}
+          >
+            {busy ? 'Creando…' : 'Empezar prueba gratis'}
+          </button>
+        </div>
+        <p
+          className="text-3 text-sm"
+          style={{ textAlign: 'center', margin: '18px 0 0' }}
         >
-          {plans.map((p) => (
-            <option key={p.code} value={p.code}>
-              {p.name} — {formatMoney(p.price_cents)}/mes ·{' '}
-              {p.max_sucursales} suc · {p.max_users} usuarios
-            </option>
-          ))}
-        </select>
-        <button
-          disabled={busy}
-          className="btn-touch w-full bg-brand text-white hover:bg-brand-dark"
-        >
-          {busy ? 'Creando…' : 'Empezar prueba gratis'}
-        </button>
-        <p className="text-center text-sm text-slate-400">
           ¿Ya tienes cuenta?{' '}
-          <Link to="/login" className="text-brand">
+          <Link
+            to="/login"
+            className="text-acc"
+            style={{ textDecoration: 'none' }}
+          >
             Inicia sesión
           </Link>
         </p>

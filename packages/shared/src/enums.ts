@@ -26,6 +26,19 @@ export const PAYMENT_METHODS = [
 ] as const;
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 
+/**
+ * Métodos válidos para una LÍNEA de pago o reembolso. Excluye 'mixto', que solo
+ * es un descriptor de cabecera (sales.payment_method) cuando una venta combina
+ * varios métodos; usarlo como método de línea descuadra el corte de caja.
+ */
+export const PAYMENT_LINE_METHODS = [
+  'efectivo',
+  'tarjeta',
+  'transferencia',
+  'credito',
+] as const;
+export type PaymentLineMethod = (typeof PAYMENT_LINE_METHODS)[number];
+
 export const SALE_STATUSES = ['completada', 'cancelada', 'devuelta'] as const;
 export type SaleStatus = (typeof SALE_STATUSES)[number];
 
@@ -71,7 +84,12 @@ export type CreditMovementKind = (typeof CREDIT_MOVEMENT_KINDS)[number];
 export const SYNC_OP_STATUSES = ['pending', 'applied', 'conflict', 'failed'] as const;
 export type SyncOpStatus = (typeof SYNC_OP_STATUSES)[number];
 
-export const SYNC_OP_TYPES = ['sale.create', 'sale.cancel', 'return.create'] as const;
+export const SYNC_OP_TYPES = [
+  'sale.create',
+  'sale.cancel',
+  'return.create',
+  'purchase.receive',
+] as const;
 export type SyncOpType = (typeof SYNC_OP_TYPES)[number];
 
 /** Acciones que requieren validación por PIN (gateadas server-side). */

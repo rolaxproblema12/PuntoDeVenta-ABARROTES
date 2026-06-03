@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ENV } from './config/env';
 import { SupabaseModule } from './common/supabase/supabase.module';
 import { StripeModule } from './common/stripe/stripe.module';
 import { OnboardingModule } from './modules/onboarding/onboarding.module';
@@ -17,12 +19,12 @@ import { HealthModule } from './modules/health/health.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { SalesModule } from './modules/sales/sales.module';
 import { CashModule } from './modules/cash/cash.module';
+import { InventoryModule } from './modules/inventory/inventory.module';
+import { CatalogModule } from './modules/catalog/catalog.module';
 import { SyncModule } from './modules/sync/sync.module';
 
 /** Módulos esqueleto (Fase 0): funcionales por fase posterior. */
 const skeletons = [
-  createSkeletonModule('products', 'products'),
-  createSkeletonModule('inventory', 'inventory_movements'),
   createSkeletonModule('pricing', 'price_lists'),
   createSkeletonModule('transfers', 'transfers'),
   createSkeletonModule('customers', 'customers'),
@@ -36,6 +38,9 @@ const skeletons = [
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: ['.env.local', '.env'] }),
+    ThrottlerModule.forRoot([
+      { ttl: ENV.throttleTtlMs, limit: ENV.throttleLimit },
+    ]),
     SupabaseModule,
     StripeModule,
     HealthModule,
@@ -45,10 +50,13 @@ const skeletons = [
     PlatformModule,
     SalesModule,
     CashModule,
+    InventoryModule,
+    CatalogModule,
     SyncModule,
     ...skeletons,
   ],
   providers: [
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: SupabaseJwtGuard },
     { provide: APP_GUARD, useClass: PlatformAdminGuard },
     { provide: APP_GUARD, useClass: TenantActiveGuard },

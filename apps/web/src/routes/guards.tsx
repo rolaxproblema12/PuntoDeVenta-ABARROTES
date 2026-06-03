@@ -7,6 +7,65 @@ import {
 } from '@abarrotes/shared';
 import { useAuth } from '@/features/auth/AuthProvider';
 
+/** Pantalla centrada con marca para estados de bloqueo (estilo Linear). */
+function GateScreen({
+  title,
+  message,
+  action,
+}: {
+  title: string;
+  message: string;
+  action?: ReactNode;
+}) {
+  return (
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'grid',
+        placeItems: 'center',
+        background: 'var(--bg)',
+        color: 'var(--text)',
+        padding: 24,
+      }}
+    >
+      <div
+        className="card"
+        style={{
+          maxWidth: 380,
+          width: '100%',
+          padding: 28,
+          textAlign: 'center',
+          boxShadow: 'var(--shadow-md)',
+        }}
+      >
+        <span
+          className="sb-logo-mark"
+          style={{ width: 34, height: 34, fontSize: 18, margin: '0 auto 16px' }}
+        >
+          a
+        </span>
+        <h1
+          style={{
+            margin: '0 0 8px',
+            fontSize: 'var(--text-lg)',
+            fontWeight: 600,
+            letterSpacing: '-0.02em',
+          }}
+        >
+          {title}
+        </h1>
+        <p
+          className="text-2"
+          style={{ margin: 0, fontSize: 'var(--text-sm)', lineHeight: 1.5 }}
+        >
+          {message}
+        </p>
+        {action && <div style={{ marginTop: 18 }}>{action}</div>}
+      </div>
+    </div>
+  );
+}
+
 /** Dos puertas: sesión válida + profile.active (espejo del sistema base). */
 export function AuthGate({ children }: { children: ReactNode }) {
   const { loading, session, profile } = useAuth();
@@ -14,7 +73,16 @@ export function AuthGate({ children }: { children: ReactNode }) {
 
   if (loading) {
     return (
-      <div className="grid min-h-screen place-items-center text-slate-400">
+      <div
+        style={{
+          minHeight: '100vh',
+          display: 'grid',
+          placeItems: 'center',
+          background: 'var(--bg)',
+          color: 'var(--text-3)',
+          fontSize: 'var(--text-sm)',
+        }}
+      >
         Cargando…
       </div>
     );
@@ -22,11 +90,10 @@ export function AuthGate({ children }: { children: ReactNode }) {
   if (!session) return <Navigate to="/login" state={{ from: loc }} replace />;
   if (!profile?.active) {
     return (
-      <div className="grid min-h-screen place-items-center p-6 text-center">
-        <p>
-          Tu cuenta está inactiva. Solicita activación a un administrador.
-        </p>
-      </div>
+      <GateScreen
+        title="Cuenta inactiva"
+        message="Tu cuenta está inactiva. Solicita su activación a un administrador del negocio."
+      />
     );
   }
   return <>{children}</>;
@@ -51,21 +118,15 @@ export function BillingGate({ children }: { children: ReactNode }) {
 
   if (blocked) {
     return (
-      <div className="grid min-h-screen place-items-center p-6 text-center">
-        <div className="max-w-md space-y-4">
-          <h1 className="text-2xl font-bold">Suscripción inactiva</h1>
-          <p className="text-slate-500">
-            Tu prueba terminó o el pago no está al día. Reactiva tu plan para
-            seguir vendiendo.
-          </p>
-          <a
-            href="/billing"
-            className="btn-touch inline-block bg-brand px-6 text-white"
-          >
+      <GateScreen
+        title="Suscripción inactiva"
+        message="Tu prueba terminó o el pago no está al día. Reactiva tu plan para seguir vendiendo."
+        action={
+          <a href="/billing" className="btn accent" style={{ height: 38 }}>
             Ir a facturación
           </a>
-        </div>
-      </div>
+        }
+      />
     );
   }
   return <>{children}</>;

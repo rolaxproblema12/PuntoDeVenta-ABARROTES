@@ -21,19 +21,13 @@ export class SalesService {
   }
 
   async cancelSale(accessToken: string, saleId: string, reason: string) {
+    // RPC atómica: marca cancelada + reingresa inventario/lotes + abona el cargo
+    // de crédito, todo en una transacción e idempotente (ver cancel_sale en
+    // supabase/migrations/0025_accounting_hardening.sql).
     const { data, error } = await this.supabase
       .asUser(accessToken)
-      .from('sales')
-      .update({
-        status: 'cancelada',
-        cancelled_at: new Date().toISOString(),
-        cancelled_reason: reason,
-      })
-      .eq('id', saleId)
-      .select('id, status')
-      .single();
+      .rpc('cancel_sale', { p_sale_id: saleId, p_reason: reason });
     if (error) throw new Error(error.message);
-    // NOTA: la reversa de stock se moverá a una RPC dedicada en Fase 1.
     return data;
   }
 

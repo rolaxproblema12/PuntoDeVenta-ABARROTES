@@ -52,6 +52,9 @@ export interface AppEnv {
   stripeSecretKey: string;
   stripeWebhookSecret: string;
   stripePrices: Record<string, string>;
+  corsOrigins: string[];
+  throttleTtlMs: number;
+  throttleLimit: number;
 }
 
 export function loadEnv(): AppEnv {
@@ -76,6 +79,12 @@ export function loadEnv(): AppEnv {
       pro: env.STRIPE_PRICE_PRO ?? '',
       negocio: env.STRIPE_PRICE_NEGOCIO ?? '',
     },
+    corsOrigins: (env.CORS_ORIGINS ?? 'http://localhost:5173')
+      .split(',')
+      .map((o) => o.trim())
+      .filter(Boolean),
+    throttleTtlMs: Number(env.THROTTLE_TTL_MS ?? 60000),
+    throttleLimit: Number(env.THROTTLE_LIMIT ?? 120),
   };
 }
 

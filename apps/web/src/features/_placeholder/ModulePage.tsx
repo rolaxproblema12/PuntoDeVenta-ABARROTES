@@ -1,4 +1,5 @@
 import { Construction } from 'lucide-react';
+import { PageHeader, EmptyState, Badge } from '@/components/ui';
 
 /** Página esqueleto reutilizable para módulos de Fase 0 aún no implementados. */
 export function ModulePage({
@@ -11,27 +12,46 @@ export function ModulePage({
   features: string[];
 }) {
   return (
-    <div className="mx-auto max-w-3xl">
-      <div className="mb-6 flex items-center gap-3">
-        <Construction className="text-amber-500" />
-        <h1 className="text-2xl font-bold">{title}</h1>
-        <span className="rounded-full bg-amber-500/15 px-3 py-1 text-xs text-amber-600">
-          Esqueleto · llega en Fase {phase}
-        </span>
+    <div className="page">
+      <PageHeader
+        title={title}
+        subtitle="Módulo cableado (ruta, tipos y endpoint listos)."
+        actions={<Badge tone="warn">Esqueleto · llega en Fase {phase}</Badge>}
+      />
+      <div className="card">
+        <EmptyState
+          icon={Construction}
+          title="En construcción"
+          hint="Funciones planeadas para este módulo:"
+          action={
+            <ul
+              className="grid grid-2"
+              style={{
+                listStyle: 'none',
+                padding: 0,
+                margin: 0,
+                textAlign: 'left',
+                maxWidth: 560,
+              }}
+            >
+              {features.map((f) => (
+                <li
+                  key={f}
+                  className="text-sm"
+                  style={{
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--r-md)',
+                    padding: '10px 12px',
+                    color: 'var(--text-2)',
+                  }}
+                >
+                  {f}
+                </li>
+              ))}
+            </ul>
+          }
+        />
       </div>
-      <p className="mb-4 text-slate-500">
-        Módulo cableado (ruta, tipos y endpoint listos). Funciones planeadas:
-      </p>
-      <ul className="grid gap-2 sm:grid-cols-2">
-        {features.map((f) => (
-          <li
-            key={f}
-            className="rounded-lg border p-3 text-sm dark:border-slate-800"
-          >
-            {f}
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }

@@ -1,7 +1,15 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { Cloud, RefreshCw } from 'lucide-react';
+import { Cloud, RefreshCw, ListChecks } from 'lucide-react';
 import { drainQueue, subscribeQueue, type SyncOp } from '@/lib/syncQueue';
+import {
+  PageHeader,
+  Card,
+  Kpi,
+  Badge,
+  StatusDot,
+  EmptyState,
+} from '@/components/ui';
 
 export default function CloudPage() {
   const [ops, setOps] = useState<SyncOp[]>([]);
@@ -25,85 +33,101 @@ export default function CloudPage() {
   const failed = ops.filter((o) => o.status === 'failed');
 
   return (
-    <div className="mx-auto max-w-3xl space-y-5">
-      <h1 className="flex items-center gap-2 text-2xl font-bold">
-        <Cloud /> Nube y Sincronización
-      </h1>
+    <div className="page">
+      <PageHeader
+        title="Nube y Sincronización"
+        subtitle={
+          <span className="flex items-center gap-sm">
+            <Cloud size={13} /> Respaldo automático en Supabase · cola offline
+            idempotente
+          </span>
+        }
+        actions={
+          <button
+            onClick={async () => {
+              await drainQueue();
+              toast.success('Sincronización ejecutada');
+            }}
+            disabled={!online || pending.length === 0}
+            className="btn primary"
+          >
+            <RefreshCw size={13} /> Sincronizar ahora
+          </button>
+        }
+      />
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <Stat label="Conexión" value={online ? 'En línea' : 'Sin conexión'} />
-        <Stat label="Pendientes" value={String(pending.length)} />
-        <Stat label="Conflictos" value={String(conflicts.length)} />
-        <Stat label="Fallidas" value={String(failed.length)} />
+      <div className="grid grid-4 mb-lg">
+        <Kpi
+          label="Conexión"
+          value={
+            <span className="flex items-center gap-sm">
+              <StatusDot status={online ? 'ok' : 'offline'} />
+              {online ? 'En línea' : 'Sin conexión'}
+            </span>
+          }
+        />
+        <Kpi label="Pendientes" value={String(pending.length)} />
+        <Kpi label="Conflictos" value={String(conflicts.length)} />
+        <Kpi label="Fallidas" value={String(failed.length)} />
       </div>
 
-      <button
-        onClick={async () => {
-          await drainQueue();
-          toast.success('Sincronización ejecutada');
-        }}
-        disabled={!online || pending.length === 0}
-        className="btn-touch bg-brand px-4 text-white disabled:opacity-50"
+      <Card
+        title={
+          <span className="flex items-center gap-sm">
+            <ListChecks size={14} /> Operaciones en cola
+          </span>
+        }
+        padded={false}
       >
-        <RefreshCw size={16} /> Sincronizar ahora
-      </button>
-
-      <div className="rounded-xl border p-4 dark:border-slate-800">
-        <h2 className="mb-2 font-bold">Operaciones en cola</h2>
         {ops.length === 0 ? (
-          <p className="py-4 text-center text-slate-400">
-            Todo sincronizado. Las ventas hechas sin internet aparecerán aquí
-            hasta reconectar.
-          </p>
+          <EmptyState
+            icon={Cloud}
+            title="Todo sincronizado"
+            hint="Las ventas hechas sin internet aparecerán aquí hasta reconectar."
+          />
         ) : (
-          <table className="w-full text-sm">
-            <thead className="text-left text-slate-500">
-              <tr>
-                <th className="p-2">Tipo</th>
-                <th className="p-2">Estado</th>
-                <th className="p-2">Creada</th>
-                <th className="p-2">Detalle</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ops.map((o) => (
-                <tr
-                  key={o.clientOpId}
-                  className="border-t dark:border-slate-800"
-                >
-                  <td className="p-2">{o.type}</td>
-                  <td
-                    className={`p-2 ${
-                      o.status === 'conflict' || o.status === 'failed'
-                        ? 'text-red-500'
-                        : 'text-amber-600'
-                    }`}
-                  >
-                    {o.status}
-                  </td>
-                  <td className="p-2 text-slate-400">
-                    {new Date(o.createdAt).toLocaleString()}
-                  </td>
-                  <td className="p-2 text-slate-400">{o.error ?? '—'}</td>
+          <div className="tbl-card" style={{ border: 'none' }}>
+            <table className="tbl">
+              <thead>
+                <tr>
+                  <th>Tipo</th>
+                  <th>Estado</th>
+                  <th>Creada</th>
+                  <th>Detalle</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {ops.map((o) => (
+                  <tr key={o.clientOpId}>
+                    <td className="fw-500">{o.type}</td>
+                    <td>
+                      <Badge
+                        tone={
+                          o.status === 'conflict' || o.status === 'failed'
+                            ? 'neg'
+                            : 'warn'
+                        }
+                        dot
+                      >
+                        {o.status}
+                      </Badge>
+                    </td>
+                    <td className="muted text-xs">
+                      {new Date(o.createdAt).toLocaleString()}
+                    </td>
+                    <td className="muted text-xs">{o.error ?? '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
-      </div>
-      <p className="text-xs text-slate-400">
+      </Card>
+
+      <p className="text-3 text-xs mt-md">
         La base de datos vive en Supabase (nube) con respaldos automáticos. Las
         ventas offline se reintentan de forma idempotente al reconectar.
       </p>
-    </div>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl border p-4 dark:border-slate-800">
-      <p className="text-xs text-slate-500">{label}</p>
-      <p className="text-lg font-bold">{value}</p>
     </div>
   );
 }

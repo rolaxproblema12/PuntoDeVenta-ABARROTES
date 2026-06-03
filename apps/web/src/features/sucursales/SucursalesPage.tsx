@@ -4,6 +4,13 @@ import { toast } from 'sonner';
 import { Plus, Store } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/features/auth/AuthProvider';
+import {
+  PageHeader,
+  Card,
+  Badge,
+  StatusDot,
+  EmptyState,
+} from '@/components/ui';
 
 function genCode() {
   return Math.random().toString(36).slice(2, 6).toUpperCase();
@@ -53,47 +60,79 @@ export default function SucursalesPage() {
   });
 
   return (
-    <div className="mx-auto max-w-3xl space-y-4">
-      <h1 className="text-2xl font-bold">Sucursales</h1>
-      <div className="flex gap-2">
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Nombre de la nueva sucursal"
-          className="flex-1 rounded-lg border p-3 dark:bg-slate-800"
-        />
-        <button
-          disabled={!name.trim() || create.isPending}
-          onClick={() => create.mutate(name)}
-          className="btn-touch bg-brand px-4 text-white"
-        >
-          <Plus size={18} /> Crear
-        </button>
-      </div>
+    <div className="page">
+      <PageHeader
+        title="Sucursales"
+        subtitle={`${sucursales.length} sucursales · administración multi-sucursal`}
+      />
+
+      <Card
+        title="Nueva sucursal"
+        sub="El número de sucursales depende de tu plan (se valida en el servidor)."
+        style={{ marginBottom: 'var(--sp-lg, 20px)' }}
+      >
+        <div className="flex items-center gap-sm">
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Nombre de la nueva sucursal"
+            className="field"
+            style={{ flex: 1 }}
+          />
+          <button
+            disabled={!name.trim() || create.isPending}
+            onClick={() => create.mutate(name)}
+            className="btn primary"
+          >
+            <Plus size={13} /> Crear
+          </button>
+        </div>
+      </Card>
 
       {isLoading ? (
-        <p className="text-slate-400">Cargando…</p>
+        <p className="text-3">Cargando…</p>
+      ) : sucursales.length === 0 ? (
+        <div className="card">
+          <EmptyState
+            icon={Store}
+            title="Sin sucursales"
+            hint="Crea la primera con el formulario de arriba."
+          />
+        </div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid grid-3">
           {sucursales.map((s: any) => (
-            <div
-              key={s.id}
-              className="flex items-center gap-3 rounded-xl border p-4 dark:border-slate-800"
-            >
-              <Store className="text-brand" />
-              <div>
-                <p className="font-semibold">{s.name}</p>
-                <p className="text-xs text-slate-400">
-                  {s.code} {s.address ? `· ${s.address}` : ''}
-                </p>
+            <Card key={s.id}>
+              <div className="flex items-center justify-between mb-sm">
+                <div
+                  className="flex items-center gap-sm"
+                  style={{ minWidth: 0 }}
+                >
+                  <Store size={16} className="text-acc" />
+                  <span
+                    className="fw-600"
+                    style={{
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {s.name}
+                  </span>
+                </div>
+                <Badge tone={s.active ? 'pos' : 'neg'} dot>
+                  {s.active ? 'Activa' : 'Inactiva'}
+                </Badge>
               </div>
-            </div>
+              <div className="flex items-center gap-sm text-sm text-3">
+                <StatusDot status={s.active ? 'ok' : 'offline'} />
+                <span className="mono">{s.code}</span>
+                {s.address && <span>· {s.address}</span>}
+              </div>
+            </Card>
           ))}
         </div>
       )}
-      <p className="text-xs text-slate-400">
-        El número de sucursales depende de tu plan (se valida en el servidor).
-      </p>
     </div>
   );
 }

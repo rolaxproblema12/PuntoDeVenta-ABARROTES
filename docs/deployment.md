@@ -69,20 +69,38 @@ pnpm db:push                              # aplica migrations a la nube
 3. **Environment**: `SUPABASE_URL`, `SUPABASE_ANON_KEY`,
    `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_JWKS_URL`, `STRIPE_SECRET_KEY`,
    `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_*`, `APP_PUBLIC_URL`
-   (la URL pública del web), `API_PORT=10000`.
+   (la URL pública del web), `API_PORT=10000`, `NODE_ENV=production`,
+   `CORS_ORIGINS=https://tu-proyecto.vercel.app` (el dominio del web; sin esto en
+   producción la API rechaza las peticiones del navegador).
 4. Deploy → anota la URL pública (ej. `https://abarrotes-api.onrender.com`).
 
 ## 5. Desplegar el Web (Vercel — gratis)
 
-1. <https://vercel.com> → **Add New Project** → importa el repo.
-2. Framework: **Vite**. Root: `apps/web`. Build: `pnpm install && pnpm
-   --filter @abarrotes/shared build && pnpm --filter @abarrotes/web build`.
-   Output: `apps/web/dist`.
-3. **Environment**: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`,
-   `VITE_API_URL=https://<TU-API>/api/v1`.
-4. Deploy → tu sitio queda en `https://tu-proyecto.vercel.app`
-   (o conecta un dominio propio). **Esa es la URL que abren las cajeras
-   desde el celular.** Es PWA: pueden "Agregar a pantalla de inicio".
+El repo ya trae **`vercel.json`** en la raíz: define el build del monorepo
+(`pnpm --filter @abarrotes/web build`), la carpeta de salida (`apps/web/dist`)
+y el **rewrite SPA** (`/(.*) → /index.html`) para que recargar rutas como
+`/pos` no dé 404. No tienes que escribir comandos a mano.
+
+1. <https://vercel.com> → **Add New… → Project** → importa el repo de GitHub.
+2. **Root Directory: déjalo en la raíz del repo** (NO lo cambies a `apps/web`;
+   `vercel.json` ya apunta al build correcto y necesita ver `packages/shared`).
+   Framework Preset: **Other** (lo toma de `vercel.json`).
+3. Antes de desplegar, abre **Environment Variables** y agrega (scope
+   *Production* y *Preview*) — son de **build**, deben existir ANTES del build:
+   - `VITE_SUPABASE_URL` = Project URL de Supabase
+   - `VITE_SUPABASE_ANON_KEY` = anon public key
+   - `VITE_API_URL` = `https://<TU-API>/api/v1` (la URL de Render del paso 4)
+4. **Deploy**. Queda en `https://tu-proyecto.vercel.app` (o conecta un dominio).
+   **Esa es la URL que abren las cajeras desde el celular.** Es PWA: pueden
+   "Agregar a pantalla de inicio".
+
+> Importante: si cambias una variable `VITE_*` después, hay que **redeploy**
+> (se hornean en el bundle en tiempo de build, no se leen en runtime).
+>
+> Orden recomendado: primero el paso 4 (API en Render) para tener su URL, luego
+> este paso 5 con `VITE_API_URL` ya apuntando a ella. Y agrega la URL de Vercel
+> a `CORS_ORIGINS` y `APP_PUBLIC_URL` de la API (Render) para que acepte sus
+> peticiones.
 
 ## 6. Designar al dueño de la plataforma (super-admin)
 

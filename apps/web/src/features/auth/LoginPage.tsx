@@ -4,8 +4,8 @@ import { supabase } from '@/lib/supabase';
 
 export default function LoginPage() {
   const nav = useNavigate();
-  const [email, setEmail] = useState('cajero@pos.local');
-  const [password, setPassword] = useState('password123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -23,44 +23,118 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
+    <div
+      style={{
+        minHeight: '100vh',
+        background: 'var(--bg)',
+        color: 'var(--text)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 16,
+      }}
+    >
       <form
         onSubmit={submit}
-        className="w-full max-w-sm space-y-4 rounded-2xl bg-white p-8 shadow-xl dark:bg-slate-900"
+        className="card"
+        style={{
+          width: '100%',
+          maxWidth: 420,
+          padding: 32,
+          boxShadow: 'var(--shadow-lg)',
+        }}
       >
-        <h1 className="text-2xl font-bold">ABARROTES POS</h1>
-        <p className="text-sm text-slate-500">Inicia sesión para continuar</p>
-        <input
-          className="w-full rounded-lg border p-3 dark:bg-slate-800"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Correo"
-        />
-        <input
-          className="w-full rounded-lg border p-3 dark:bg-slate-800"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Contraseña"
-        />
-        {error && <p className="text-sm text-red-500">{error}</p>}
-        <button
-          className="btn-touch w-full bg-brand text-white hover:bg-brand-dark"
-          disabled={busy}
+        <span
+          style={{
+            width: 30,
+            height: 30,
+            borderRadius: 8,
+            background: 'var(--text)',
+            color: 'var(--bg-elev)',
+            display: 'grid',
+            placeItems: 'center',
+            fontSize: 17,
+            fontWeight: 800,
+            letterSpacing: '-0.04em',
+            marginBottom: 16,
+          }}
         >
-          {busy ? 'Entrando…' : 'Entrar'}
-        </button>
-        <p className="text-center text-sm text-slate-400">
+          a
+        </span>
+        <h1
+          style={{
+            margin: 0,
+            fontSize: 22,
+            fontWeight: 700,
+            letterSpacing: '-0.02em',
+          }}
+        >
+          ABARROTES POS
+        </h1>
+        <p className="text-2 text-sm" style={{ margin: '6px 0 20px' }}>
+          Inicia sesión para continuar
+        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div>
+            <label className="label">Correo</label>
+            <input
+              className="field"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Correo"
+            />
+          </div>
+          <div>
+            <label className="label">Contraseña</label>
+            <input
+              className="field"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Contraseña"
+            />
+          </div>
+          {error && (
+            <p className="text-neg text-sm" style={{ margin: 0 }}>
+              {error}
+            </p>
+          )}
+          <button
+            className="btn accent"
+            disabled={busy}
+            style={{
+              width: '100%',
+              height: 38,
+              justifyContent: 'center',
+              marginTop: 4,
+            }}
+          >
+            {busy ? 'Entrando…' : 'Entrar'}
+          </button>
+        </div>
+        <p
+          className="text-3 text-sm"
+          style={{ textAlign: 'center', margin: '18px 0 0' }}
+        >
           ¿No tienes sistema?{' '}
-          <Link to="/registro" className="text-brand">
+          <Link
+            to="/registro"
+            className="text-acc"
+            style={{ textDecoration: 'none' }}
+          >
             Crea el tuyo gratis
           </Link>
         </p>
-        <p className="text-xs text-slate-400">
-          Demo: admin@pos.local / super@pos.local / encargado@pos.local /
-          cajero@pos.local · password123
-        </p>
+        {import.meta.env.VITE_SHOW_DEMO_CREDS === 'true' && (
+          <p
+            className="text-3 text-xs"
+            style={{ textAlign: 'center', margin: '12px 0 0' }}
+          >
+            Demo: admin@pos.local / super@pos.local / encargado@pos.local /
+            cajero@pos.local · password123
+          </p>
+        )}
       </form>
     </div>
   );

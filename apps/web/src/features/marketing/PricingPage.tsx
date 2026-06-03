@@ -19,49 +19,115 @@ export default function PricingPage() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-950 px-6 py-16 text-slate-100">
-      <div className="mx-auto max-w-4xl text-center">
-        <h1 className="text-3xl font-extrabold">Precios simples</h1>
-        <p className="mt-2 text-slate-400">
+    <div
+      style={{
+        minHeight: '100vh',
+        background: 'var(--bg)',
+        color: 'var(--text)',
+        padding: '72px 24px',
+      }}
+    >
+      <div style={{ maxWidth: 880, margin: '0 auto', textAlign: 'center' }}>
+        <h1
+          style={{
+            fontSize: 32,
+            fontWeight: 700,
+            letterSpacing: '-0.02em',
+            margin: 0,
+          }}
+        >
+          Precios simples
+        </h1>
+        <p className="text-2" style={{ marginTop: 10, fontSize: 15 }}>
           14 días gratis. Cancela cuando quieras.
         </p>
       </div>
-      <div className="mx-auto mt-10 grid max-w-4xl gap-6 sm:grid-cols-3">
+      <div
+        className="grid grid-3"
+        style={{ maxWidth: 920, margin: '40px auto 0' }}
+      >
         {plans.map((p) => (
           <div
             key={p.code}
-            className="flex flex-col rounded-2xl bg-slate-900 p-6"
+            className="card"
+            style={{ display: 'flex', flexDirection: 'column', padding: 24 }}
           >
-            <h3 className="text-lg font-bold capitalize">{p.name}</h3>
-            <p className="mt-2 text-3xl font-extrabold">
+            <h3
+              className="fw-600"
+              style={{
+                margin: 0,
+                fontSize: 15,
+                textTransform: 'capitalize',
+              }}
+            >
+              {p.name}
+            </h3>
+            <p
+              style={{
+                margin: '12px 0 0',
+                fontSize: 30,
+                fontWeight: 700,
+                letterSpacing: '-0.02em',
+              }}
+            >
               {formatMoney(p.price_cents)}
-              <span className="text-base font-normal text-slate-400">/mes</span>
+              <span
+                className="text-3"
+                style={{ fontSize: 14, fontWeight: 400, marginLeft: 4 }}
+              >
+                /mes
+              </span>
             </p>
-            <ul className="mt-4 flex-1 space-y-2 text-sm text-slate-300">
-              <li className="flex gap-2">
-                <Check size={16} className="text-brand" />
+            <ul
+              className="text-sm"
+              style={{
+                listStyle: 'none',
+                padding: 0,
+                margin: '20px 0 0',
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 10,
+                color: 'var(--text-2)',
+              }}
+            >
+              <li className="flex items-center gap-sm">
+                <Check size={15} style={{ color: 'var(--accent-text)' }} />
                 {p.max_sucursales} sucursal(es)
               </li>
-              <li className="flex gap-2">
-                <Check size={16} className="text-brand" />
+              <li className="flex items-center gap-sm">
+                <Check size={15} style={{ color: 'var(--accent-text)' }} />
                 {p.max_users} usuarios
               </li>
-              <li className="flex gap-2">
-                <Check size={16} className="text-brand" />
+              <li className="flex items-center gap-sm">
+                <Check size={15} style={{ color: 'var(--accent-text)' }} />
                 POS, inventario y reportes
               </li>
             </ul>
             <Link
               to="/registro"
-              className="btn-touch mt-6 bg-brand text-white"
+              className="btn accent"
+              style={{
+                textDecoration: 'none',
+                marginTop: 24,
+                height: 38,
+                justifyContent: 'center',
+              }}
             >
               Empezar
             </Link>
           </div>
         ))}
       </div>
-      <p className="mt-10 text-center text-sm text-slate-500">
-        <Link to="/" className="text-brand">
+      <p
+        className="text-3 text-sm"
+        style={{ marginTop: 40, textAlign: 'center' }}
+      >
+        <Link
+          to="/"
+          className="text-acc"
+          style={{ textDecoration: 'none' }}
+        >
           ← Volver
         </Link>
       </p>

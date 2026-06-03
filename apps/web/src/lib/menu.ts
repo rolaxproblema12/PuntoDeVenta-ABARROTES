@@ -15,26 +15,48 @@ import {
 } from 'lucide-react';
 import type { UserRole } from '@abarrotes/shared';
 
+export type MenuGroup =
+  | 'Operación'
+  | 'Catálogo'
+  | 'Relaciones'
+  | 'Análisis'
+  | 'Sistema';
+
 export interface MenuItem {
   path: string;
   label: string;
   icon: LucideIcon;
+  /** Grupo del sidebar (estilo Linear). */
+  group: MenuGroup;
   /** Rol mínimo para ver el módulo. */
   minRole: UserRole;
 }
 
-/** Los 10 módulos. El sidebar filtra por rol. */
+/** Los 12 módulos, agrupados. El sidebar filtra por rol. */
 export const MENU: MenuItem[] = [
-  { path: '/pos', label: 'Caja (POS)', icon: ShoppingCart, minRole: 'cajero' },
-  { path: '/inventory', label: 'Inventario', icon: Boxes, minRole: 'encargado' },
-  { path: '/products', label: 'Productos', icon: Package, minRole: 'encargado' },
-  { path: '/customers', label: 'Clientes', icon: CreditCard, minRole: 'cajero' },
-  { path: '/purchasing', label: 'Compras', icon: Truck, minRole: 'encargado' },
-  { path: '/reports', label: 'Reportes', icon: LineChart, minRole: 'supervisor' },
-  { path: '/sucursales', label: 'Sucursales', icon: Store, minRole: 'administrador' },
-  { path: '/security', label: 'Seguridad', icon: ShieldCheck, minRole: 'administrador' },
-  { path: '/smart', label: 'Inteligencia', icon: Sparkles, minRole: 'supervisor' },
-  { path: '/cloud', label: 'Nube / Sync', icon: Cloud, minRole: 'encargado' },
-  { path: '/cash', label: 'Cortes de caja', icon: Banknote, minRole: 'cajero' },
-  { path: '/billing', label: 'Facturación', icon: Wallet, minRole: 'administrador' },
+  // Operación
+  { path: '/pos', label: 'Caja (POS)', icon: ShoppingCart, group: 'Operación', minRole: 'cajero' },
+  { path: '/cash', label: 'Corte de caja', icon: Banknote, group: 'Operación', minRole: 'cajero' },
+  { path: '/sucursales', label: 'Sucursales', icon: Store, group: 'Operación', minRole: 'administrador' },
+  // Catálogo
+  { path: '/products', label: 'Productos', icon: Package, group: 'Catálogo', minRole: 'encargado' },
+  { path: '/inventory', label: 'Inventario', icon: Boxes, group: 'Catálogo', minRole: 'encargado' },
+  { path: '/purchasing', label: 'Compras', icon: Truck, group: 'Catálogo', minRole: 'encargado' },
+  // Relaciones
+  { path: '/customers', label: 'Clientes', icon: CreditCard, group: 'Relaciones', minRole: 'cajero' },
+  // Análisis
+  { path: '/reports', label: 'Reportes', icon: LineChart, group: 'Análisis', minRole: 'supervisor' },
+  { path: '/billing', label: 'Facturación', icon: Wallet, group: 'Análisis', minRole: 'administrador' },
+  // Sistema
+  { path: '/smart', label: 'Inteligencia', icon: Sparkles, group: 'Sistema', minRole: 'supervisor' },
+  { path: '/cloud', label: 'Nube / Sync', icon: Cloud, group: 'Sistema', minRole: 'encargado' },
+  { path: '/security', label: 'Seguridad', icon: ShieldCheck, group: 'Sistema', minRole: 'administrador' },
+];
+
+export const MENU_GROUPS: MenuGroup[] = [
+  'Operación',
+  'Catálogo',
+  'Relaciones',
+  'Análisis',
+  'Sistema',
 ];

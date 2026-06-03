@@ -55,7 +55,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           'id, full_name, email, role, active, default_sucursal_id, tenant_id',
         )
         .eq('id', uid)
-        .single();
+        .maybeSingle();
+
+      // Sesión válida pero sin perfil utilizable → trátalo como no-autenticado
+      // para no exponer rutas protegidas con profile:null.
+      if (!profile) {
+        setState({
+          loading: false,
+          session: false,
+          profile: null,
+          tenant: null,
+          isPlatformAdmin: false,
+        });
+        return;
+      }
 
       const [{ data: padmin }, tenantRes] = await Promise.all([
         supabase
@@ -63,7 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .select('user_id')
           .eq('user_id', uid)
           .maybeSingle(),
-        profile?.tenant_id
+        profile.tenant_id
           ? supabase
               .from('tenants')
               .select('id, name, slug, status, plan_code, trial_ends_at, owner_user_id, created_at')
@@ -75,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setState({
         loading: false,
         session: true,
-        profile: (profile as Profile) ?? null,
+        profile: profile as Profile,
         tenant: (tenantRes.data as Tenant) ?? null,
         isPlatformAdmin: !!padmin,
       });

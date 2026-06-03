@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { KeyRound } from 'lucide-react';
+import { KeyRound, ShieldCheck, Users, History } from 'lucide-react';
 import { USER_ROLES, type UserRole } from '@abarrotes/shared';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/features/auth/AuthProvider';
+import { PageHeader, Card, Badge, EmptyState } from '@/components/ui';
 
 export default function SecurityPage() {
   const { tenant, profile } = useAuth();
@@ -69,110 +70,148 @@ export default function SecurityPage() {
   const isAdmin = profile?.role === 'administrador';
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
-      <h1 className="text-2xl font-bold">Usuarios y Seguridad</h1>
+    <div className="page">
+      <PageHeader
+        title="Usuarios y Seguridad"
+        subtitle={`${users.length} usuarios · roles, PIN y bitácora`}
+      />
 
-      <div className="rounded-xl border p-4 dark:border-slate-800">
-        <h2 className="mb-2 font-bold">Mi PIN (acciones críticas)</h2>
-        <div className="flex gap-2">
+      <Card
+        title={
+          <span className="flex items-center gap-sm">
+            <KeyRound size={14} /> Mi PIN (acciones críticas)
+          </span>
+        }
+        sub="Requerido para confirmar operaciones sensibles."
+      >
+        <div className="flex gap-sm">
           <input
             type="password"
             inputMode="numeric"
             placeholder="Nuevo PIN (4-6 dígitos)"
-            className="flex-1 rounded-lg border p-3 dark:bg-slate-800"
+            className="field"
+            style={{ flex: 1 }}
             value={pin}
             onChange={(e) => setPin(e.target.value)}
           />
           <button
             onClick={() => savePin.mutate()}
-            className="btn-touch bg-brand px-4 text-white"
+            className="btn primary"
           >
-            <KeyRound size={16} /> Guardar
+            <KeyRound size={13} /> Guardar
           </button>
         </div>
-      </div>
+      </Card>
 
-      <div className="rounded-xl border p-4 dark:border-slate-800">
-        <h2 className="mb-2 font-bold">Usuarios del negocio</h2>
-        <table className="w-full text-sm">
-          <thead className="text-left text-slate-500">
-            <tr>
-              <th className="p-2">Nombre</th>
-              <th className="p-2">Correo</th>
-              <th className="p-2">Rol</th>
-              <th className="p-2">Activo</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((u: any) => (
-              <tr key={u.id} className="border-t dark:border-slate-800">
-                <td className="p-2">{u.full_name || '—'}</td>
-                <td className="p-2 text-slate-400">{u.email}</td>
-                <td className="p-2">
-                  <select
-                    disabled={!isAdmin || u.id === profile?.id}
-                    value={u.role}
-                    onChange={(e) =>
-                      setRole.mutate({
-                        id: u.id,
-                        role: e.target.value as UserRole,
-                        active: u.active,
-                      })
-                    }
-                    className="rounded border p-1 dark:bg-slate-800"
-                  >
-                    {USER_ROLES.map((r) => (
-                      <option key={r} value={r}>
-                        {r}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td className="p-2">
-                  <input
-                    type="checkbox"
-                    disabled={!isAdmin || u.id === profile?.id}
-                    checked={u.active}
-                    onChange={(e) =>
-                      setRole.mutate({
-                        id: u.id,
-                        role: u.role,
-                        active: e.target.checked,
-                      })
-                    }
-                  />
-                </td>
+      <Card
+        title={
+          <span className="flex items-center gap-sm">
+            <Users size={14} /> Usuarios del negocio
+          </span>
+        }
+        sub={
+          !isAdmin ? 'Solo el administrador puede cambiar roles.' : undefined
+        }
+        padded={false}
+      >
+        <div className="tbl-card" style={{ border: 'none' }}>
+          <table className="tbl">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Rol</th>
+                <th>Activo</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        {!isAdmin && (
-          <p className="mt-2 text-xs text-slate-400">
-            Solo el administrador puede cambiar roles.
-          </p>
-        )}
-      </div>
-
-      <div className="rounded-xl border p-4 dark:border-slate-800">
-        <h2 className="mb-2 font-bold">Bitácora reciente</h2>
-        <div className="max-h-64 overflow-y-auto text-sm">
-          {log.map((l: any, i) => (
-            <div
-              key={i}
-              className="flex justify-between border-b py-1 dark:border-slate-800"
-            >
-              <span>{l.action_key}</span>
-              <span className="text-slate-400">{l.entity ?? ''}</span>
-              <span className="text-slate-400">
-                {new Date(l.created_at).toLocaleString()}
-              </span>
-            </div>
-          ))}
-          {log.length === 0 && (
-            <p className="py-4 text-center text-slate-400">Sin actividad.</p>
-          )}
+            </thead>
+            <tbody>
+              {users.map((u: any) => (
+                <tr key={u.id}>
+                  <td className="fw-500">{u.full_name || '—'}</td>
+                  <td className="muted mono text-xs">{u.email}</td>
+                  <td>
+                    <select
+                      disabled={!isAdmin || u.id === profile?.id}
+                      value={u.role}
+                      onChange={(e) =>
+                        setRole.mutate({
+                          id: u.id,
+                          role: e.target.value as UserRole,
+                          active: u.active,
+                        })
+                      }
+                      className="field"
+                    >
+                      {USER_ROLES.map((r) => (
+                        <option key={r} value={r}>
+                          {r}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td>
+                    {u.active ? (
+                      <Badge tone="pos" dot>
+                        activo
+                      </Badge>
+                    ) : (
+                      <Badge tone="neg" dot>
+                        inactivo
+                      </Badge>
+                    )}
+                    <input
+                      type="checkbox"
+                      disabled={!isAdmin || u.id === profile?.id}
+                      checked={u.active}
+                      onChange={(e) =>
+                        setRole.mutate({
+                          id: u.id,
+                          role: u.role,
+                          active: e.target.checked,
+                        })
+                      }
+                      style={{ marginLeft: 8 }}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      </div>
+      </Card>
+
+      <Card
+        title={
+          <span className="flex items-center gap-sm">
+            <History size={14} /> Bitácora reciente
+          </span>
+        }
+      >
+        {log.length === 0 ? (
+          <EmptyState
+            icon={ShieldCheck}
+            title="Sin actividad"
+            hint="Las acciones del equipo aparecerán aquí."
+          />
+        ) : (
+          <div className="feed" style={{ maxHeight: 256, overflowY: 'auto' }}>
+            {log.map((l: any, i) => (
+              <div key={i} className="feed-item">
+                <div className="feed-icon">
+                  <History size={13} />
+                </div>
+                <div className="feed-bd">
+                  <span className="fw-500">{l.action_key}</span>
+                  <span className="text-3 text-sm">{l.entity ?? ''}</span>
+                </div>
+                <span className="feed-when">
+                  {new Date(l.created_at).toLocaleString()}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
     </div>
   );
 }

@@ -30,6 +30,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
     let code = 'INTERNAL';
     let message = 'Error interno';
     let details: unknown;
+    // Marca el caso fallthrough: ni HttpException ni mapeado por PG_ERROR_MAP.
+    let unmappedInternal = false;
 
     if (exception instanceof HttpException) {
       status = exception.getStatus();
@@ -45,11 +47,25 @@ export class AllExceptionsFilter implements ExceptionFilter {
         code = PG_ERROR_MAP[key]!.code;
         message = raw;
       } else {
-        message = raw || message;
+        // 500 no clasificado: no filtrar detalles internos al cliente.
+        unmappedInternal = true;
+        message = 'Error interno del servidor';
       }
+    } else {
+      unmappedInternal = true;
+      message = 'Error interno del servidor';
     }
 
-    if (status >= 500) {
+    if (unmappedInternal) {
+      // Registro completo del error real solo en servidor.
+      this.logger.error(
+        JSON.stringify({
+          requestId,
+          rawMessage: String((exception as any)?.message ?? exception),
+        }),
+        (exception as any)?.stack,
+      );
+    } else if (status >= 500) {
       this.logger.error(`[${requestId}] ${message}`, (exception as any)?.stack);
     }
 
