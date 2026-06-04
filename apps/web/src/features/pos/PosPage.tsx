@@ -239,7 +239,6 @@ export default function PosPage() {
           style={{
             flex: 1,
             overflowY: 'auto',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
             alignContent: 'start',
           }}
         >
@@ -366,7 +365,7 @@ export default function PosPage() {
           </div>
           <div
             className="hero-num text-acc text-glow tnum"
-            style={{ fontSize: 42, marginBottom: 16 }}
+            style={{ fontSize: 'clamp(30px, 9vw, 42px)', marginBottom: 16 }}
           >
             {formatMoney(cart.totalCents())}
           </div>

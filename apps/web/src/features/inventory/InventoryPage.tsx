@@ -462,7 +462,7 @@ export default function InventoryPage() {
                 const rowClass = out ? 'row-danger' : low ? 'row-warn' : undefined;
                 return (
                   <tr key={s.product_id} className={rowClass}>
-                    <td>
+                    <td data-label="Producto">
                       <div className="flex items-center" style={{ gap: 10 }}>
                         <div className="thumb">{initials(s.products!.name)}</div>
                         <div>
@@ -471,7 +471,7 @@ export default function InventoryPage() {
                         </div>
                       </div>
                     </td>
-                    <td>
+                    <td data-label="Stock">
                       <div
                         className="flex items-center"
                         style={{ gap: 8, minWidth: 110 }}
@@ -489,17 +489,17 @@ export default function InventoryPage() {
                         />
                       </div>
                     </td>
-                    <td>
+                    <td data-label="Estado">
                       <Badge tone={badgeTone} dot>
                         {badgeLabel}
                       </Badge>
                     </td>
-                    <td className="num tnum muted">{min}</td>
-                    <td className="num tnum muted">{formatMoney(s.avg_cost ?? 0)}</td>
-                    <td className="num tnum fw-500">
+                    <td data-label="Mínimo" className="num tnum muted">{min}</td>
+                    <td data-label="Costo prom." className="num tnum muted">{formatMoney(s.avg_cost ?? 0)}</td>
+                    <td data-label="Valor" className="num tnum fw-500">
                       {formatMoney(Math.round(s.stock * (s.avg_cost ?? 0)))}
                     </td>
-                    <td style={{ textAlign: 'right' }}>
+                    <td data-label="" style={{ textAlign: 'right' }}>
                       <button
                         onClick={() => setKardexFor(s.product_id)}
                         className="btn ghost sm"

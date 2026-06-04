@@ -508,7 +508,7 @@ export default function ProductsPage() {
                 const margen = rowMargin(p);
                 return (
                   <tr key={p.id} className={p.active ? undefined : 'row-muted'}>
-                    <td>
+                    <td data-label="Producto">
                       <div className="flex items-center" style={{ gap: 10 }}>
                         <div className="thumb">
                           {p.name
@@ -529,18 +529,18 @@ export default function ProductsPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="muted text-sm">{catName(p.category_id) || '—'}</td>
-                    <td className="mono text-xs muted">{p.sku}</td>
-                    <td className="num tnum text-2">{formatMoney(cost)}</td>
-                    <td className="num tnum fw-600">{formatMoney(price)}</td>
-                    <td className="num">
+                    <td data-label="Categoría" className="muted text-sm">{catName(p.category_id) || '—'}</td>
+                    <td data-label="SKU" className="mono text-xs muted">{p.sku}</td>
+                    <td data-label="Costo" className="num tnum text-2">{formatMoney(cost)}</td>
+                    <td data-label="Precio" className="num tnum fw-600">{formatMoney(price)}</td>
+                    <td data-label="Margen" className="num">
                       {price > 0 ? (
                         <Badge tone={marginTone(margen)}>{margen.toFixed(1)}%</Badge>
                       ) : (
                         <span className="text-3">—</span>
                       )}
                     </td>
-                    <td style={{ textAlign: 'right' }}>
+                    <td data-label="" style={{ textAlign: 'right' }}>
                       <button
                         onClick={() => openEdit(p)}
                         className="btn ghost sm"

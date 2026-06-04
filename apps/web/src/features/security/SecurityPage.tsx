@@ -127,9 +127,9 @@ export default function SecurityPage() {
             <tbody>
               {users.map((u: any) => (
                 <tr key={u.id}>
-                  <td className="fw-500">{u.full_name || '—'}</td>
-                  <td className="muted mono text-xs">{u.email}</td>
-                  <td>
+                  <td className="fw-500" data-label="Nombre">{u.full_name || '—'}</td>
+                  <td className="muted mono text-xs" data-label="Correo">{u.email}</td>
+                  <td data-label="Rol">
                     <select
                       disabled={!isAdmin || u.id === profile?.id}
                       value={u.role}
@@ -149,7 +149,7 @@ export default function SecurityPage() {
                       ))}
                     </select>
                   </td>
-                  <td>
+                  <td data-label="Activo">
                     {u.active ? (
                       <Badge tone="pos" dot>
                         activo

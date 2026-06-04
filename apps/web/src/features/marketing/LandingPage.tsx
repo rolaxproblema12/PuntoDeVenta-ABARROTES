@@ -69,13 +69,13 @@ export default function LandingPage() {
         style={{
           maxWidth: 720,
           margin: '0 auto',
-          padding: '96px 24px',
+          padding: 'clamp(48px, 12vw, 96px) 24px',
           textAlign: 'center',
         }}
       >
         <h1
           style={{
-            fontSize: 44,
+            fontSize: 'clamp(30px, 8vw, 44px)',
             fontWeight: 700,
             letterSpacing: '-0.02em',
             lineHeight: 1.1,
@@ -93,7 +93,7 @@ export default function LandingPage() {
         </p>
         <div
           className="flex items-center"
-          style={{ justifyContent: 'center', gap: 10, marginTop: 32 }}
+          style={{ justifyContent: 'center', gap: 10, marginTop: 32, flexWrap: 'wrap' }}
         >
           <Link
             to="/registro"

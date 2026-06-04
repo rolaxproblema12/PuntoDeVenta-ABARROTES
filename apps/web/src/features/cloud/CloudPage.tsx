@@ -99,8 +99,8 @@ export default function CloudPage() {
               <tbody>
                 {ops.map((o) => (
                   <tr key={o.clientOpId}>
-                    <td className="fw-500">{o.type}</td>
-                    <td>
+                    <td data-label="Tipo" className="fw-500">{o.type}</td>
+                    <td data-label="Estado">
                       <Badge
                         tone={
                           o.status === 'conflict' || o.status === 'failed'
@@ -112,10 +112,10 @@ export default function CloudPage() {
                         {o.status}
                       </Badge>
                     </td>
-                    <td className="muted text-xs">
+                    <td data-label="Creada" className="muted text-xs">
                       {new Date(o.createdAt).toLocaleString()}
                     </td>
-                    <td className="muted text-xs">{o.error ?? '—'}</td>
+                    <td data-label="Detalle" className="muted text-xs">{o.error ?? '—'}</td>
                   </tr>
                 ))}
               </tbody>

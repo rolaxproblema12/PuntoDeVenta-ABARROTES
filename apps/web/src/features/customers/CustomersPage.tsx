@@ -178,9 +178,9 @@ export default function CustomersPage() {
             <tbody>
               {filtered.map((c) => (
                 <tr key={c.id}>
-                  <td className="fw-500">{c.name}</td>
-                  <td className="muted">{c.phone ?? '—'}</td>
-                  <td className="num tnum">
+                  <td data-label="Cliente" className="fw-500">{c.name}</td>
+                  <td data-label="Teléfono" className="muted">{c.phone ?? '—'}</td>
+                  <td data-label="Saldo" className="num tnum">
                     <span
                       style={{
                         color:
@@ -192,10 +192,10 @@ export default function CustomersPage() {
                       {formatMoney(c.current_balance)}
                     </span>
                   </td>
-                  <td className="num tnum muted">
+                  <td data-label="Límite" className="num tnum muted">
                     {formatMoney(c.credit_limit)}
                   </td>
-                  <td style={{ textAlign: 'right' }}>
+                  <td data-label="" style={{ textAlign: 'right' }}>
                     <button
                       onClick={() => setAbono({ c, amount: '' })}
                       className="btn ghost sm"

@@ -24,7 +24,7 @@ export default function PricingPage() {
         minHeight: '100vh',
         background: 'var(--bg)',
         color: 'var(--text)',
-        padding: '72px 24px',
+        padding: 'clamp(40px, 10vw, 72px) 24px',
       }}
     >
       <div style={{ maxWidth: 880, margin: '0 auto', textAlign: 'center' }}>

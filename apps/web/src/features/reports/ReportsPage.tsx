@@ -345,9 +345,9 @@ export default function ReportsPage() {
             <tbody>
               {byMethod.map((m) => (
                 <tr key={m.method}>
-                  <td className="fw-500">{METHOD_LABEL[m.method] ?? m.method}</td>
-                  <td className="num text-2 tnum">{m.tickets}</td>
-                  <td className="num fw-600">{formatMoney(m.total)}</td>
+                  <td data-label="Método" className="fw-500">{METHOD_LABEL[m.method] ?? m.method}</td>
+                  <td data-label="# Tickets" className="num text-2 tnum">{m.tickets}</td>
+                  <td data-label="Total" className="num fw-600">{formatMoney(m.total)}</td>
                 </tr>
               ))}
             </tbody>
@@ -380,14 +380,14 @@ export default function ReportsPage() {
               <tbody>
                 {ledger.slice(0, 200).map((s) => (
                   <tr key={s.folio}>
-                    <td className="fw-500 mono">{s.folio}</td>
-                    <td className="text-2">
+                    <td data-label="Folio" className="fw-500 mono">{s.folio}</td>
+                    <td data-label="Fecha" className="text-2">
                       {new Date(s.created_at).toLocaleString('es-MX')}
                     </td>
-                    <td className="text-2">
+                    <td data-label="Método" className="text-2">
                       {METHOD_LABEL[s.payment_method] ?? s.payment_method}
                     </td>
-                    <td className="num fw-600">{formatMoney(Number(s.total ?? 0))}</td>
+                    <td data-label="Total" className="num fw-600">{formatMoney(Number(s.total ?? 0))}</td>
                   </tr>
                 ))}
               </tbody>
@@ -421,9 +421,9 @@ export default function ReportsPage() {
             <tbody>
               {top.slice(0, 10).map((t, i) => (
                 <tr key={i}>
-                  <td className="fw-500">{t.name}</td>
-                  <td className="num text-2 tnum">{t.qty}</td>
-                  <td className="num fw-600">{formatMoney(t.revenue)}</td>
+                  <td data-label="Producto" className="fw-500">{t.name}</td>
+                  <td data-label="Unidades" className="num text-2 tnum">{t.qty}</td>
+                  <td data-label="Ingreso" className="num fw-600">{formatMoney(t.revenue)}</td>
                 </tr>
               ))}
             </tbody>

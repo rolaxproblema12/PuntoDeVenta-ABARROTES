@@ -316,6 +316,13 @@ export default function CashPage() {
   const sucName = (sucursales as any[]).find((x) => x.id === sucursalId);
   const business = sucName ? `${sucName.code} · ${sucName.name}` : 'POS';
 
+  // Historial: abierto por defecto en escritorio, plegado en móvil (menos scroll).
+  const [historyOpen, setHistoryOpen] = useState(
+    () =>
+      typeof window === 'undefined' ||
+      window.matchMedia('(min-width: 769px)').matches,
+  );
+
   return (
     <div className="page">
       <PageHeader
@@ -473,17 +480,14 @@ export default function CashPage() {
                   </div>
                   <div
                     className="hero-num text-acc text-glow"
-                    style={{ fontSize: 40, marginTop: 6 }}
+                    style={{ fontSize: 'clamp(28px, 8vw, 40px)', marginTop: 6 }}
                   >
                     {formatMoney(summary?.expected_cash ?? 0)}
                   </div>
                 </div>
               </div>
 
-              <div
-                className="flex gap-sm"
-                style={{ flexWrap: 'wrap', justifyContent: 'flex-end' }}
-              >
+              <div className="actions-grid" style={{ justifyContent: 'flex-end' }}>
                 <button
                   onClick={() =>
                     setMoveForm({ kind: 'ingreso', amount: '', reason: '' })
@@ -521,7 +525,7 @@ export default function CashPage() {
           <div
             className="grid"
             style={{
-              gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
               gap: 12,
               marginTop: 16,
             }}
@@ -676,9 +680,9 @@ export default function CashPage() {
                 <tbody>
                   {sessionSales.map((t) => (
                     <tr key={t.folio}>
-                      <td className="fw-500 mono">{t.folio}</td>
-                      <td className="muted">{fmtDateTime(t.created_at)}</td>
-                      <td>
+                      <td className="fw-500 mono" data-label="Folio">{t.folio}</td>
+                      <td className="muted" data-label="Hora">{fmtDateTime(t.created_at)}</td>
+                      <td data-label="Método">
                         {METHOD_LABEL[t.payment_method] ?? t.payment_method}
                         {t.status !== 'completada' && (
                           <span className="text-neg text-xs"> · {t.status}</span>
@@ -686,6 +690,7 @@ export default function CashPage() {
                       </td>
                       <td
                         className="num tnum fw-500"
+                        data-label="Total"
                         style={{
                           textDecoration:
                             t.status === 'completada' ? 'none' : 'line-through',
@@ -702,66 +707,82 @@ export default function CashPage() {
         </>
       )}
 
-      {/* Historial de cortes — visible siempre */}
-      <SectionTitle icon={History} title="Historial de cortes (Z)" count={history.length} />
-      {history.length === 0 ? (
-        <Card>
-          <EmptyState
-            title="Sin cortes todavía"
-            hint="Los cierres de caja anteriores aparecerán aquí."
-          />
-        </Card>
-      ) : (
-        <div className="tbl-card">
-          <table className="tbl">
-            <thead>
-              <tr>
-                <th>Cierre</th>
-                <th>Caja</th>
-                <th style={{ textAlign: 'right' }}>Esperado</th>
-                <th style={{ textAlign: 'right' }}>Contado</th>
-                <th style={{ textAlign: 'right' }}>Diferencia</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {history.map((h) => {
-                const diff = h.difference ?? 0;
-                return (
-                  <tr key={h.id}>
-                    <td className="fw-500">{fmtDateTime(h.closed_at)}</td>
-                    <td className="muted">{regName(h.register_id)}</td>
-                    <td className="num tnum muted">
-                      {formatMoney(h.expected_cash ?? 0)}
-                    </td>
-                    <td className="num tnum">
-                      {formatMoney(h.counted_cash ?? 0)}
-                    </td>
-                    <td
-                      className="num tnum fw-500"
-                      style={{
-                        color: diff === 0 ? 'var(--pos)' : 'var(--neg)',
-                      }}
-                    >
-                      {formatMoney(diff)}
-                    </td>
-                    <td style={{ textAlign: 'right' }}>
-                      <button
-                        onClick={() => setViewSession(h.id)}
-                        className="btn ghost sm"
-                        title="Ver corte"
-                        aria-label="Ver corte"
+      {/* Historial de cortes — plegable (cerrado por defecto en móvil) */}
+      <details
+        className="section-collapse"
+        open={historyOpen}
+        onToggle={(e) =>
+          setHistoryOpen((e.currentTarget as HTMLDetailsElement).open)
+        }
+      >
+        <summary>
+          <History size={15} /> Historial de cortes (Z){' '}
+          <span className="count">{history.length}</span>
+        </summary>
+        {history.length === 0 ? (
+          <Card>
+            <EmptyState
+              title="Sin cortes todavía"
+              hint="Los cierres de caja anteriores aparecerán aquí."
+            />
+          </Card>
+        ) : (
+          <div className="tbl-card" style={{ marginTop: 10 }}>
+            <table className="tbl">
+              <thead>
+                <tr>
+                  <th>Cierre</th>
+                  <th>Caja</th>
+                  <th style={{ textAlign: 'right' }}>Esperado</th>
+                  <th style={{ textAlign: 'right' }}>Contado</th>
+                  <th style={{ textAlign: 'right' }}>Diferencia</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {history.map((h) => {
+                  const diff = h.difference ?? 0;
+                  return (
+                    <tr key={h.id}>
+                      <td className="fw-500" data-label="Cierre">
+                        {fmtDateTime(h.closed_at)}
+                      </td>
+                      <td className="muted" data-label="Caja">
+                        {regName(h.register_id)}
+                      </td>
+                      <td className="num tnum muted" data-label="Esperado">
+                        {formatMoney(h.expected_cash ?? 0)}
+                      </td>
+                      <td className="num tnum" data-label="Contado">
+                        {formatMoney(h.counted_cash ?? 0)}
+                      </td>
+                      <td
+                        className="num tnum fw-500"
+                        data-label="Diferencia"
+                        style={{
+                          color: diff === 0 ? 'var(--pos)' : 'var(--neg)',
+                        }}
                       >
-                        <Eye size={13} />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+                        {formatMoney(diff)}
+                      </td>
+                      <td style={{ textAlign: 'right' }} data-label="">
+                        <button
+                          onClick={() => setViewSession(h.id)}
+                          className="btn ghost sm"
+                          title="Ver corte"
+                          aria-label="Ver corte"
+                        >
+                          <Eye size={13} />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </details>
 
       {/* Movimiento de efectivo */}
       {moveForm && (

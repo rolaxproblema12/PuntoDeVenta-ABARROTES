@@ -76,11 +76,11 @@ export default function PlatformDashboard() {
             <tbody>
               {tenants.map((t) => (
                 <tr key={t.id}>
-                  <td className="fw-500">{t.name}</td>
-                  <td>
+                  <td className="fw-500" data-label="Negocio">{t.name}</td>
+                  <td data-label="Plan">
                     <Badge tone="accent">{t.plan_code}</Badge>
                   </td>
-                  <td>
+                  <td data-label="Estado">
                     <Badge
                       tone={
                         t.status === 'suspended' || t.status === 'canceled'
@@ -94,7 +94,7 @@ export default function PlatformDashboard() {
                       {t.status}
                     </Badge>
                   </td>
-                  <td style={{ textAlign: 'right' }}>
+                  <td style={{ textAlign: 'right' }} data-label="Acciones">
                     {t.status === 'suspended' || t.status === 'canceled' ? (
                       <button
                         onClick={() => act(t.id, 'reactivate')}

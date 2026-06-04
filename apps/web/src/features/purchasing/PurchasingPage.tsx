@@ -415,19 +415,19 @@ export default function PurchasingPage() {
                 <tbody>
                   {suppliers.map((s) => (
                     <tr key={s.id} className={s.active ? '' : 'row-muted'}>
-                      <td>
+                      <td data-label="Proveedor">
                         <div className="flex items-center" style={{ gap: 10 }}>
                           <div className="thumb">{initials(s.name)}</div>
                           <span className="fw-500">{s.name}</span>
                         </div>
                       </td>
-                      <td className="muted">{s.contact || '—'}</td>
-                      <td>
+                      <td className="muted" data-label="Contacto">{s.contact || '—'}</td>
+                      <td data-label="Estado">
                         <Badge tone={s.active ? 'pos' : 'default'}>
                           {s.active ? 'Activo' : 'Inactivo'}
                         </Badge>
                       </td>
-                      <td style={{ textAlign: 'right' }}>
+                      <td data-label="" style={{ textAlign: 'right' }}>
                         <button
                           onClick={() => setSupForm({ ...s })}
                           className="btn ghost sm"
@@ -491,14 +491,7 @@ export default function PurchasingPage() {
             </p>
           )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <div
-              className="grid text-2 text-xs fw-600"
-              style={{
-                gridTemplateColumns: '1fr 90px 110px 120px 36px',
-                gap: 8,
-                alignItems: 'center',
-              }}
-            >
+            <div className="receive-head text-2 text-xs fw-600">
               <span>Producto</span>
               <span>Cantidad</span>
               <span>Costo unit.</span>
@@ -508,15 +501,7 @@ export default function PurchasingPage() {
             {lines.map((l, i) => {
               const subtotal = lineCents(l);
               return (
-                <div
-                  key={i}
-                  className="grid"
-                  style={{
-                    gridTemplateColumns: '1fr 90px 110px 120px 36px',
-                    gap: 8,
-                    alignItems: 'center',
-                  }}
-                >
+                <div key={i} className="receive-row">
                   <select
                     className="field"
                     value={l.product_id}
@@ -653,20 +638,20 @@ export default function PurchasingPage() {
                     const isOverdue = overdue(p);
                     return (
                       <tr key={i} className={isOverdue ? 'row-danger' : ''}>
-                        <td className="fw-500">{p.suppliers?.name ?? '—'}</td>
-                        <td>
+                        <td className="fw-500" data-label="Proveedor">{p.suppliers?.name ?? '—'}</td>
+                        <td data-label="Vence">
                           <span className="flex items-center gap-xs">
                             <span className="text-2">{fmtDue(p.due_date)}</span>
                             {isOverdue && <Badge tone="neg">Vencida</Badge>}
                           </span>
                         </td>
-                        <td>
+                        <td data-label="Estatus">
                           <Badge tone={statusTone(p.status)}>
                             {STATUS_LABEL[p.status] ?? p.status}
                           </Badge>
                         </td>
-                        <td className="num tnum">{formatMoney(amount)}</td>
-                        <td>
+                        <td className="num tnum" data-label="Monto">{formatMoney(amount)}</td>
+                        <td data-label="Pagado">
                           <div
                             className="flex items-center gap-xs"
                             style={{ minWidth: 120 }}
@@ -682,14 +667,14 @@ export default function PurchasingPage() {
                             </span>
                           </div>
                         </td>
-                        <td className="num tnum fw-600">
+                        <td className="num tnum fw-600" data-label="Saldo">
                           <span
                             style={bal > 0 ? { color: 'var(--neg)' } : undefined}
                           >
                             {formatMoney(bal)}
                           </span>
                         </td>
-                        <td style={{ textAlign: 'right' }}>
+                        <td data-label="" style={{ textAlign: 'right' }}>
                           {bal > 0 && (
                             <button
                               onClick={() => setPayAp({ p, amount: '' })}

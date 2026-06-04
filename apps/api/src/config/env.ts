@@ -61,7 +61,9 @@ export function loadEnv(): AppEnv {
   const env = process.env;
   return {
     nodeEnv: env.NODE_ENV ?? 'development',
-    port: Number(env.API_PORT ?? 3000),
+    // Render/Railway/Fly inyectan el puerto en PORT; respétalo. API_PORT es el
+    // fallback local.
+    port: Number(env.PORT ?? env.API_PORT ?? 3000),
     apiPrefix: env.API_PREFIX ?? 'api',
     apiVersion: env.API_VERSION ?? '1',
     supabaseUrl: env.SUPABASE_URL ?? 'http://127.0.0.1:54321',
