@@ -1,0 +1,4 @@
+# Datos reales exportados de la tienda — no se versionan.
+output/
+*.csv
+*.json

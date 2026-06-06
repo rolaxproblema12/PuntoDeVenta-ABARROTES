@@ -17,6 +17,7 @@ import { ROLE_RANK } from '@abarrotes/shared';
 import { MENU, MENU_GROUPS } from '@/lib/menu';
 import { useTheme } from '@/lib/theme';
 import { supabase } from '@/lib/supabase';
+import { useRegister, useSucursal } from '@/lib/stores';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { SyncIndicator } from './SyncIndicator';
 
@@ -200,6 +201,12 @@ export function AppShell({ children }: { children: ReactNode }) {
           <button
             onClick={async () => {
               await supabase.auth.signOut();
+              // Evita que el siguiente usuario en este equipo herede la sucursal
+              // y la caja del anterior: resetea memoria y storage persistido.
+              useSucursal.setState({ sucursalId: null });
+              useRegister.setState({ registerId: null, cashSessionId: null });
+              useSucursal.persist.clearStorage();
+              useRegister.persist.clearStorage();
               nav('/login');
             }}
             className="tb-icon-btn"

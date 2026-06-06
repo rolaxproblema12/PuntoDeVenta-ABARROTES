@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { v7 as uuidv7 } from 'uuid';
 import { toast } from 'sonner';
 import { Lock, Search, ShoppingCart, Trash2 } from 'lucide-react';
@@ -14,8 +14,9 @@ import {
 import { supabase } from '@/lib/supabase';
 import { api, ApiRequestError } from '@/lib/apiClient';
 import { enqueueOp, drainQueue } from '@/lib/syncQueue';
-import { useCart, useRegister, useSucursal } from '@/lib/stores';
-import { useAuth } from '@/features/auth/AuthProvider';
+import { useCart, useRegister } from '@/lib/stores';
+import { useActiveSucursal } from '@/lib/useActiveSucursal';
+import { useActiveCashSession } from '@/lib/useActiveCashSession';
 import { Modal } from '@/components/ui';
 
 interface ProductRow {
@@ -28,8 +29,8 @@ interface ProductRow {
 }
 
 export default function PosPage() {
-  const { profile } = useAuth();
-  const { sucursalId, setSucursal } = useSucursal();
+  const qc = useQueryClient();
+  const sucursalId = useActiveSucursal();
   const { registerId, cashSessionId, setRegister, setCashSession } =
     useRegister();
   const cart = useCart();
@@ -38,31 +39,10 @@ export default function PosPage() {
   const [openingCaja, setOpeningCaja] = useState(false);
   const cashOpen = !!cashSessionId;
 
-  // Si no hay sucursal activa, usa la del perfil (igual que CashPage).
-  useEffect(() => {
-    if (!sucursalId && profile?.default_sucursal_id) {
-      setSucursal(profile.default_sucursal_id);
-    }
-  }, [sucursalId, profile, setSucursal]);
-
-  // Restaura una sesión de caja ya abierta en el servidor (otro día/equipo),
-  // para que el POS refleje el estado real y no pida reabrir.
-  useEffect(() => {
-    if (!registerId || cashSessionId) return;
-    let cancelled = false;
-    void (async () => {
-      const { data } = await supabase
-        .from('cash_sessions')
-        .select('id')
-        .eq('register_id', registerId)
-        .eq('status', 'open')
-        .maybeSingle();
-      if (!cancelled && data?.id) setCashSession(data.id);
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [registerId, cashSessionId, setCashSession]);
+  // Resuelve desde el servidor la caja abierta de la sucursal y la adopta, para
+  // que cualquier dispositivo (PC, teléfono) refleje el estado real y comparta
+  // la misma sesión sin importar lo que tuviera en localStorage.
+  useActiveCashSession();
 
   const { data: products = [] } = useQuery({
     queryKey: ['products', sucursalId],
@@ -389,6 +369,9 @@ export default function PosPage() {
             setRegister(regId);
             setCashSession(sessionId);
             setOpeningCaja(false);
+            void qc.invalidateQueries({
+              queryKey: ['open-cash-session', sucursalId],
+            });
           }}
         />
       )}

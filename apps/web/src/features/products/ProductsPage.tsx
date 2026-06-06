@@ -5,12 +5,14 @@ import {
   CheckCircle2,
   ChevronDown,
   ChevronRight,
+  Download,
   FolderTree,
   Package,
   Pencil,
   Percent,
   Plus,
   Search,
+  Upload,
 } from 'lucide-react';
 import {
   formatMoney,
@@ -26,6 +28,8 @@ import { PageHeader, Modal, EmptyState, Kpi, Badge, type BadgeTone } from '@/com
 import { ExportMenu } from '@/components/ExportMenu';
 import { stamp, type ExportDataset } from '@/lib/export';
 import { CategoriesModal } from './CategoriesModal';
+import { ImportProductsModal } from './ImportProductsModal';
+import { downloadBaseCsv } from './exportBase';
 
 interface Row {
   id: string;
@@ -144,6 +148,8 @@ export default function ProductsPage() {
   const [showAdv, setShowAdv] = useState(false);
   const [addingCat, setAddingCat] = useState('');
   const [showCats, setShowCats] = useState(false);
+  const [showImport, setShowImport] = useState(false);
+  const [exportingBase, setExportingBase] = useState(false);
 
   const { data: suc } = useQuery({
     queryKey: ['suc-name', sucursalId],
@@ -158,6 +164,19 @@ export default function ProductsPage() {
     },
   });
   const business = suc ? `${suc.name} (${suc.code})` : 'POS';
+
+  async function handleExportBase() {
+    if (!sucursalId || exportingBase) return;
+    setExportingBase(true);
+    try {
+      const n = await downloadBaseCsv(sucursalId, business);
+      toast.success(`Base exportada: ${n} productos (CSV reimportable).`);
+    } catch (e) {
+      toast.error(`No se pudo exportar la base: ${(e as Error).message}`);
+    } finally {
+      setExportingBase(false);
+    }
+  }
 
   const { data: categories = [] } = useQuery({
     queryKey: ['categories', sucursalId],
@@ -391,6 +410,17 @@ export default function ProductsPage() {
             <button onClick={() => setShowCats(true)} className="btn">
               <FolderTree size={14} /> Categorías
             </button>
+            <button onClick={() => setShowImport(true)} className="btn">
+              <Upload size={14} /> Importar
+            </button>
+            <button
+              onClick={() => void handleExportBase()}
+              className="btn"
+              disabled={exportingBase || products.length === 0}
+              title="Descarga un CSV reimportable con todo el catálogo (respaldo / mover de base)"
+            >
+              <Download size={14} /> {exportingBase ? 'Exportando…' : 'Exportar base'}
+            </button>
             <button onClick={openNew} className="btn primary">
               <Plus size={13} /> Nuevo producto
             </button>
@@ -560,6 +590,17 @@ export default function ProductsPage() {
 
       {showCats && (
         <CategoriesModal sucursalId={sucursalId} onClose={() => setShowCats(false)} />
+      )}
+
+      {showImport && sucursalId && (
+        <ImportProductsModal
+          sucursalId={sucursalId}
+          onClose={() => setShowImport(false)}
+          onDone={() => {
+            void qc.invalidateQueries({ queryKey: ['products'] });
+            void qc.invalidateQueries({ queryKey: ['categories'] });
+          }}
+        />
       )}
 
       {form && (

@@ -24,6 +24,7 @@ import {
 import { supabase } from '@/lib/supabase';
 import { api } from '@/lib/apiClient';
 import { useRegister, useSucursal } from '@/lib/stores';
+import { useActiveCashSession } from '@/lib/useActiveCashSession';
 import { useAuth } from '@/features/auth/AuthProvider';
 import {
   PageHeader,
@@ -91,6 +92,11 @@ export default function CashPage() {
       setSucursal(profile.default_sucursal_id);
     }
   }, [profile, sucursalId, setSucursal]);
+
+  // Adopta la caja abierta en el servidor para esta sucursal (la haya abierto
+  // este dispositivo u otro). Al fijar cashSessionId, las queries de ventas /
+  // movimientos / corte se activan solas; al limpiarlo, vuelve a "caja cerrada".
+  useActiveCashSession();
 
   const { data: sucursales = [] } = useQuery({
     queryKey: ['sucursales', tenant?.id],
@@ -230,6 +236,9 @@ export default function CashPage() {
         },
       });
       setCashSession(res.id);
+      void qc.invalidateQueries({
+        queryKey: ['open-cash-session', sucursalId],
+      });
       toast.success('Sesión de caja abierta');
     } catch (e) {
       toast.error((e as Error).message);
@@ -303,6 +312,9 @@ export default function CashPage() {
       setCloseForm(null);
       setZResult(res);
       void qc.invalidateQueries({ queryKey: ['cash-history'] });
+      void qc.invalidateQueries({
+        queryKey: ['open-cash-session', sucursalId],
+      });
       toast.success(
         `Caja cerrada. Diferencia: ${formatMoney(res.difference ?? 0)}`,
       );
